@@ -10,8 +10,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 import {
   rentals,
-  customers,
-  vehicles,
   getCustomerById,
   getVehicleById,
 } from "@/data";
@@ -46,6 +44,7 @@ export default function RentalsPage() {
         action={
           <button
             onClick={() => setLocation("/rentals/new")}
+            aria-label="إيجار جديد"
             className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm active:scale-95 transition-transform"
           >
             <Plus className="w-5 h-5" strokeWidth={2.5} />
@@ -69,7 +68,7 @@ export default function RentalsPage() {
         />
       </div>
 
-      <div className="px-4 pb-4 space-y-3">
+      <div className="px-4 pb-6 space-y-3">
         {filtered.length === 0 ? (
           <EmptyState
             icon={FileText}
@@ -79,9 +78,7 @@ export default function RentalsPage() {
                 : "لا توجد إيجارات منتهية"
             }
             description={
-              tab === "active"
-                ? "اضغط على + لإنشاء إيجار جديد"
-                : undefined
+              tab === "active" ? "اضغط على + لإنشاء إيجار جديد" : undefined
             }
             action={
               tab === "active"

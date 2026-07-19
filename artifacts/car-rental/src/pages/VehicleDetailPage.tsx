@@ -1,36 +1,20 @@
 import { useLocation } from "wouter";
-import { Car, Wrench, ChevronLeft, Phone, MapPin, Calendar, AlertCircle } from "lucide-react";
+import { Car, Wrench, ChevronLeft, Calendar, AlertCircle } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { InfoRow } from "@/components/ui/InfoRow";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
+import { MAINTENANCE_TYPES } from "@/components/ui/MaintenanceCard";
+import { formatLBP, formatDateAr } from "@/lib/format";
 import {
-  vehicles,
   getVehicleById,
   getCustomerById,
   getRentalsForVehicle,
   getMaintenanceForVehicle,
   getTotalRemaining,
+  vehicles,
 } from "@/data";
-
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-function formatLBP(n: number) {
-  return new Intl.NumberFormat("en-US").format(n) + " ل.ل";
-}
-function formatDateAr(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ar-LB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-const MAINTENANCE_LABELS: Record<string, string> = {
-  oil: "تغيير زيت",
-  inspection: "فحص ميكانيكي",
-  insurance: "تأمين",
-  registration: "تسجيل",
-  repair: "تصليح",
-};
+import type { MaintenanceType } from "@/data/types";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function VehicleDetailPage({
@@ -50,7 +34,7 @@ export default function VehicleDetailPage({
           <p className="text-muted-foreground text-sm">لم يتم العثور على هذه السيارة</p>
           <button
             onClick={() => setLocation("/vehicles")}
-            className="text-primary font-medium text-sm"
+            className="text-primary font-medium text-sm active:opacity-70"
           >
             العودة إلى السيارات
           </button>
@@ -95,7 +79,6 @@ export default function VehicleDetailPage({
             <span className="text-xs text-muted-foreground">لا توجد صورة</span>
           </div>
         )}
-        {/* Status badge overlaid on photo */}
         <div className="absolute bottom-3 right-3">
           <StatusBadge status={vehicle.status} className="text-xs px-3 py-1 shadow-sm" />
         </div>
@@ -175,7 +158,7 @@ export default function VehicleDetailPage({
             <>
               <button
                 onClick={() => setLocation(`/rentals/new?vehicle=${vehicle.id}`)}
-                className="flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-2xl py-3.5 font-semibold text-sm active:scale-95 transition-transform col-span-1"
+                className="flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-2xl py-3.5 font-semibold text-sm active:scale-95 transition-transform"
               >
                 تأجير السيارة
               </button>
@@ -209,7 +192,7 @@ export default function VehicleDetailPage({
               لا توجد إيجارات سابقة
             </div>
           ) : (
-            pastRentals.map((rental, i) => {
+            pastRentals.map((rental) => {
               const customer = getCustomerById(rental.customerId);
               return (
                 <div
@@ -264,7 +247,7 @@ export default function VehicleDetailPage({
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-semibold text-foreground">
-                    {MAINTENANCE_LABELS[record.type] ?? record.type}
+                    {MAINTENANCE_TYPES[record.type as MaintenanceType]?.label ?? record.type}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {formatDateAr(record.dueDate)}

@@ -1,39 +1,33 @@
 import { useLocation } from "wouter";
-import { TrendingUp, TrendingDown, AlertCircle, Car, CheckCircle2, Users } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertCircle, CheckCircle2, Users } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatLBP } from "@/lib/format";
 import { vehicles, rentals, customers, getVehicleById, getCustomerById } from "@/data";
 
-// ─── Mock date anchor (must match the rest of the app) ────────────────────────
+// ─── Mock date anchor ─────────────────────────────────────────────────────────
 const MOCK_MONTH = 0;   // January
 const MOCK_YEAR  = 2025;
 const PREV_MONTH = 11;  // December
 const PREV_YEAR  = 2024;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function formatLBP(n: number): string {
-  return new Intl.NumberFormat("en-US").format(n) + " ل.ل";
-}
-
 function isInMonth(dateStr: string, month: number, year: number): boolean {
   const d = new Date(dateStr);
   return d.getMonth() === month && d.getFullYear() === year;
 }
 
-// ─── Derived data (computed once at module evaluation) ────────────────────────
+// ─── Derived data ─────────────────────────────────────────────────────────────
 
-// Revenue: sum all payments by month
 let thisMonthRevenue = 0;
 let prevMonthRevenue = 0;
-// Revenue per vehicle for the current month: vehicleId → amount
 const vehicleRevenueThisMonth: Record<string, number> = {};
 
 rentals.forEach((r) => {
   r.payments.forEach((p) => {
     if (isInMonth(p.date, MOCK_MONTH, MOCK_YEAR)) {
       thisMonthRevenue += p.amount;
-      // attribute payment to each vehicle in this rental (split evenly if multiple)
       const share = p.amount / r.vehicleIds.length;
       r.vehicleIds.forEach((vid) => {
         vehicleRevenueThisMonth[vid] = (vehicleRevenueThisMonth[vid] ?? 0) + share;
@@ -45,14 +39,12 @@ rentals.forEach((r) => {
   });
 });
 
-// Month-over-month change
 const revenueChange =
   prevMonthRevenue > 0
     ? Math.round(((thisMonthRevenue - prevMonthRevenue) / prevMonthRevenue) * 100)
     : null;
 const revenueUp = revenueChange !== null && revenueChange >= 0;
 
-// Pending balance from active rentals
 let totalPending = 0;
 const activeRentals = rentals.filter((r) => r.status === "active");
 activeRentals.forEach((r) => {
@@ -60,7 +52,6 @@ activeRentals.forEach((r) => {
   totalPending += Math.max(0, r.totalAmount - paid);
 });
 
-// Per-vehicle revenue list (only vehicles with revenue this month, sorted desc)
 const vehicleRevenueList = Object.entries(vehicleRevenueThisMonth)
   .map(([vid, amount]) => ({ vehicle: getVehicleById(vid)!, amount }))
   .filter((x) => x.vehicle && x.amount > 0)
@@ -68,7 +59,6 @@ const vehicleRevenueList = Object.entries(vehicleRevenueThisMonth)
 
 const maxVehicleRevenue = vehicleRevenueList[0]?.amount ?? 1;
 
-// Fleet status counts
 const availableCount   = vehicles.filter((v) => v.status === "available").length;
 const rentedCount      = vehicles.filter((v) => v.status === "rented").length;
 const maintenanceCount = vehicles.filter((v) => v.status === "maintenance").length;
@@ -76,10 +66,8 @@ const maintenanceCount = vehicles.filter((v) => v.status === "maintenance").leng
 const rentedVehicles      = vehicles.filter((v) => v.status === "rented");
 const maintenanceVehicles = vehicles.filter((v) => v.status === "maintenance");
 
-// Completed rentals
 const endedCount = rentals.filter((r) => r.status === "ended").length;
 
-// Customer with highest outstanding balance (active rentals only)
 const customerBalance: Record<string, number> = {};
 activeRentals.forEach((r) => {
   const paid = r.payments.reduce((s, p) => s + p.amount, 0);
@@ -112,7 +100,6 @@ export default function AnalyticsPage() {
             <p className="text-sm font-medium opacity-80 mb-1">إيرادات يناير ٢٠٢٥</p>
             <p className="text-3xl font-bold tracking-tight">{formatLBP(thisMonthRevenue)}</p>
 
-            {/* Month-over-month comparison */}
             {revenueChange !== null && (
               <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-white/20">
                 {revenueUp
@@ -157,7 +144,6 @@ export default function AnalyticsPage() {
                     onClick={() => navigate(`/vehicles/${item.vehicle.id}`)}
                     className="w-full text-right px-4 py-3 hover:bg-muted/40 active:bg-muted transition-colors"
                   >
-                    {/* Vehicle name row */}
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-bold text-foreground tabular-nums">
                         {formatLBP(item.amount)}
@@ -173,7 +159,6 @@ export default function AnalyticsPage() {
                         </span>
                       </div>
                     </div>
-                    {/* CSS progress bar */}
                     <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${isTop ? "bg-primary" : "bg-primary/40"}`}
@@ -191,7 +176,6 @@ export default function AnalyticsPage() {
         <section>
           <SectionHeader title="حالة الأسطول" />
 
-          {/* Count chips */}
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="rounded-xl bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))] p-3 text-center">
               <p className="text-2xl font-bold">{availableCount}</p>
@@ -210,7 +194,7 @@ export default function AnalyticsPage() {
           {/* Currently rented */}
           {rentedVehicles.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs font-semibold text-muted-foreground mb-2 me-1">
+              <p className="text-xs font-semibold text-muted-foreground mb-2">
                 المؤجرة الآن
               </p>
               <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
@@ -242,7 +226,7 @@ export default function AnalyticsPage() {
           {/* Currently under maintenance */}
           {maintenanceVehicles.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground mb-2 me-1">
+              <p className="text-xs font-semibold text-muted-foreground mb-2">
                 قيد الصيانة الآن
               </p>
               <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
@@ -267,7 +251,6 @@ export default function AnalyticsPage() {
         <section>
           <SectionHeader title="ملخص عام" />
           <div className="grid grid-cols-2 gap-3">
-            {/* Completed rentals */}
             <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-[hsl(var(--status-available-bg))] flex items-center justify-center shrink-0">
                 <CheckCircle2 size={18} className="text-[hsl(var(--status-available))]" />
@@ -277,11 +260,9 @@ export default function AnalyticsPage() {
                 <p className="text-xs text-muted-foreground">إيجار مكتمل</p>
               </div>
             </div>
-
-            {/* Total customers */}
             <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                <Users size={18} className="text-blue-500" />
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Users size={18} className="text-primary" />
               </div>
               <div>
                 <p className="text-xl font-bold text-foreground leading-tight">{customers.length}</p>
@@ -300,20 +281,17 @@ export default function AnalyticsPage() {
               className="w-full text-right rounded-2xl border border-[hsl(var(--status-danger-bg))] bg-card p-4 hover:bg-muted/40 active:bg-muted transition-colors"
             >
               <div className="flex items-center justify-between gap-3">
-                {/* Balance */}
                 <div className="text-left shrink-0">
                   <p className="text-lg font-bold text-[hsl(var(--status-danger))] tabular-nums leading-tight">
                     {formatLBP(topDebtor.balance)}
                   </p>
                   <p className="text-xs text-muted-foreground">رصيد متبقٍّ</p>
                 </div>
-                {/* Customer */}
                 <div className="flex items-center gap-3">
                   <div>
                     <p className="text-sm font-bold text-foreground">{topDebtor.customer.name}</p>
                     <p className="text-xs text-muted-foreground">{topDebtor.customer.location}</p>
                   </div>
-                  {/* Initials avatar */}
                   <div className="w-10 h-10 rounded-full bg-[hsl(var(--status-danger-bg))] flex items-center justify-center shrink-0">
                     <span className="text-sm font-bold text-[hsl(var(--status-danger))]">
                       {topDebtor.customer.name.charAt(0)}

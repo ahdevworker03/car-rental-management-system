@@ -13,6 +13,7 @@ import {
   StickyNote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatLBP, formatDateAr } from "@/lib/format";
 import type { MaintenanceRecord, MaintenanceType } from "@/data/types";
 
 // ── Type config ─────────────────────────────────────────────────────────────
@@ -35,18 +36,6 @@ const MOCK_TODAY = new Date("2025-01-15T12:00:00Z");
 function daysFromToday(dateStr: string): number {
   const diff = new Date(dateStr).getTime() - MOCK_TODAY.getTime();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ar-LB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-function formatLBP(n: number) {
-  return new Intl.NumberFormat("en-US").format(n) + " ل.ل";
 }
 
 // ── Status colours ────────────────────────────────────────────────────────────
@@ -156,7 +145,7 @@ export function MaintenanceCard({
           <div className="flex items-center justify-between gap-2">
             {/* Date — LEFT */}
             <span className="text-xs text-muted-foreground flex-shrink-0">
-              {formatDate(record.dueDate)}
+              {formatDateAr(record.dueDate)}
             </span>
             {/* Type label — RIGHT */}
             <span
@@ -194,7 +183,7 @@ export function MaintenanceCard({
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
-              {formatDate(record.dueDate)}
+              {formatDateAr(record.dueDate)}
             </span>
             <span className="text-sm text-muted-foreground">تاريخ الاستحقاق</span>
           </div>
@@ -203,7 +192,7 @@ export function MaintenanceCard({
           {record.completedDate && (
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-[hsl(var(--status-available))]">
-                {formatDate(record.completedDate)}
+                {formatDateAr(record.completedDate)}
               </span>
               <span className="text-sm text-muted-foreground">تاريخ الإنجاز</span>
             </div>

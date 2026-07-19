@@ -1,5 +1,6 @@
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatLBP } from "@/lib/format";
 import type { Customer } from "@/data/types";
 
 interface CustomerCardProps {
@@ -8,10 +9,6 @@ interface CustomerCardProps {
   remainingBalance: number;
   onClick?: () => void;
   className?: string;
-}
-
-function formatLBP(n: number) {
-  return new Intl.NumberFormat("en-US").format(n) + " ل.ل";
 }
 
 /** Two-letter Arabic initials from the customer name */

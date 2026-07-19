@@ -1,5 +1,6 @@
 import { Car, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatLBP } from "@/lib/format";
 import { Vehicle } from "@/data/types";
 import { StatusBadge } from "./StatusBadge";
 
@@ -8,10 +9,6 @@ interface VehicleCardProps {
   currentRenterName?: string;
   onClick?: () => void;
   className?: string;
-}
-
-function formatLBP(amount: number) {
-  return new Intl.NumberFormat("en-US").format(amount);
 }
 
 export function VehicleCard({
@@ -63,7 +60,7 @@ export function VehicleCard({
           {/* Row 3: Price (left) + Renter or year (right) */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-semibold text-foreground">
-              {formatLBP(vehicle.dailyPrice)} ل.ل/يوم
+              {formatLBP(vehicle.dailyPrice)}/يوم
             </span>
             {currentRenterName ? (
               <span className="text-xs font-medium text-[hsl(var(--status-rented))] truncate">

@@ -5,6 +5,7 @@ import { InfoRow } from "@/components/ui/InfoRow";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { formatLBP, formatDateAr } from "@/lib/format";
 import {
   getCustomerById,
   getRentalsForCustomer,
@@ -14,16 +15,6 @@ import {
 } from "@/data";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
-function formatLBP(n: number) {
-  return new Intl.NumberFormat("en-US").format(n) + " ل.ل";
-}
-function formatDateAr(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ar-LB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
 function initials(name: string) {
   return name
     .trim()
@@ -51,7 +42,7 @@ export default function CustomerDetailPage({
           <p className="text-muted-foreground text-sm">لم يتم العثور على هذا العميل</p>
           <button
             onClick={() => setLocation("/customers")}
-            className="text-primary font-medium text-sm"
+            className="text-primary font-medium text-sm active:opacity-70"
           >
             العودة إلى العملاء
           </button>
@@ -66,7 +57,6 @@ export default function CustomerDetailPage({
     .filter((r) => r.status === "ended")
     .sort((a, b) => new Date(b.returnDate!).getTime() - new Date(a.returnDate!).getTime());
 
-  // Payment summary across ALL rentals
   const totalPaidAllTime = allRentals.reduce(
     (sum, r) => sum + r.payments.reduce((s, p) => s + p.amount, 0),
     0
@@ -109,7 +99,7 @@ export default function CustomerDetailPage({
                 </div>
               )}
             </div>
-            {/* Call button — visual, links to tel: for prototype realism */}
+            {/* Call button — visual prototype */}
             <a
               href={`tel:${customer.phone}`}
               className="w-11 h-11 flex items-center justify-center rounded-full bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))] active:scale-95 transition-transform flex-shrink-0"
@@ -160,7 +150,7 @@ export default function CustomerDetailPage({
 
         {/* ── Active Rentals ────────────────────────────────────────────── */}
         <section>
-          <SectionHeader title="الإيجارات الحالية" className="px-1" />
+          <SectionHeader title="الإيجارات الحالية" />
           {activeRentals.length === 0 ? (
             <div className="bg-card rounded-2xl border border-card-border shadow-sm px-4 py-6">
               <p className="text-sm text-muted-foreground text-center">لا توجد إيجارات حالية</p>
@@ -170,7 +160,6 @@ export default function CustomerDetailPage({
               {activeRentals.map((rental) => {
                 const vehicle = getVehicleById(rental.vehicleIds[0]);
                 const remaining = getTotalRemaining(rental.id);
-                const paid = getTotalPaid(rental.id);
 
                 return (
                   <div
@@ -269,7 +258,7 @@ export default function CustomerDetailPage({
           )}
         </CollapsibleSection>
 
-        {/* ── Action Buttons ────────────────────────────────────────────── */}
+        {/* ── Action Button ─────────────────────────────────────────────── */}
         <button
           onClick={() => setLocation(`/rentals/new?customer=${customer.id}`)}
           className="w-full bg-primary text-primary-foreground rounded-2xl py-4 font-bold text-base active:scale-[0.99] transition-transform"

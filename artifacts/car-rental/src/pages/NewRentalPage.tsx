@@ -1,18 +1,15 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
-import { Car, User, ChevronRight, Check, Search, X } from "lucide-react";
+import { Car, User, ChevronRight, Check, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
+import { formatLBP } from "@/lib/format";
 
 import { rentals, vehicles, customers } from "@/data";
 import type { Rental } from "@/data/types";
 
 const MOCK_TODAY_STR = "2025-01-15";
-
-function formatLBP(n: number) {
-  return new Intl.NumberFormat("en-US").format(n) + " ل.ل";
-}
 
 function calcDays(start: string, end: string): number {
   if (!start || !end) return 0;
@@ -27,7 +24,6 @@ function toISO(dateStr: string): string {
 export default function NewRentalPage() {
   const [, setLocation] = useLocation();
 
-  // Read query params for pre-selection
   const params = new URLSearchParams(window.location.search);
   const preVehicle = params.get("vehicle") ?? "";
   const preCustomer = params.get("customer") ?? "";
@@ -135,7 +131,6 @@ export default function NewRentalPage() {
       status: "active",
     };
 
-    // Mutate module arrays so other pages see the changes
     rentals.push(newRental);
     const vIdx = vehicles.findIndex((v) => v.id === selectedVehicleId);
     if (vIdx !== -1) {
@@ -146,7 +141,7 @@ export default function NewRentalPage() {
     setTimeout(() => setLocation("/rentals"), 1200);
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // ── Success screen ────────────────────────────────────────────────────────
   if (saved) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-background px-6 gap-4">
@@ -213,7 +208,6 @@ export default function NewRentalPage() {
 
           {showVehiclePicker && (
             <div className="border-t border-border px-4 pt-3 pb-4 space-y-2">
-              {/* Search */}
               <div className="relative">
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <Search className="w-4 h-4 text-muted-foreground" />
@@ -380,11 +374,7 @@ export default function NewRentalPage() {
         {/* ── 3. Rental details ─────────────────────────────────────────── */}
         <div className="bg-card rounded-2xl border border-card-border shadow-sm p-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <FormField
-              label="تاريخ البداية"
-              required
-              error={errors.startDate}
-            >
+            <FormField label="تاريخ البداية" required error={errors.startDate}>
               <input
                 type="date"
                 value={startDate}
@@ -393,11 +383,7 @@ export default function NewRentalPage() {
               />
             </FormField>
 
-            <FormField
-              label="تاريخ الانتهاء"
-              required
-              error={errors.endDate}
-            >
+            <FormField label="تاريخ الانتهاء" required error={errors.endDate}>
               <input
                 type="date"
                 value={endDate}
@@ -424,7 +410,6 @@ export default function NewRentalPage() {
             />
           </FormField>
 
-          {/* Calculated totals */}
           {days > 0 && price > 0 && (
             <div className="bg-muted/60 rounded-xl p-3 space-y-1.5">
               <div className="flex justify-between text-sm">
@@ -434,11 +419,7 @@ export default function NewRentalPage() {
             </div>
           )}
 
-          <FormField
-            label="الدفعة الأولى"
-            hint="اختياري"
-            error={errors.paidAmount}
-          >
+          <FormField label="الدفعة الأولى" hint="اختياري" error={errors.paidAmount}>
             <input
               type="number"
               inputMode="numeric"
@@ -449,7 +430,6 @@ export default function NewRentalPage() {
             />
           </FormField>
 
-          {/* Remaining */}
           {total > 0 && (
             <div className="flex justify-between items-center py-2 border-t border-border">
               <span

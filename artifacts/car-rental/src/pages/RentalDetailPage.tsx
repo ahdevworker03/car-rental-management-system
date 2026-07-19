@@ -7,34 +7,21 @@ import {
   CreditCard,
   CheckCircle,
   RotateCcw,
-  Plus,
   X,
+  AlertCircle,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { InfoRow } from "@/components/ui/InfoRow";
-
+import { formatLBP, formatDateAr } from "@/lib/format";
 import { rentals, vehicles, getCustomerById, getVehicleById } from "@/data";
 import type { Rental, Payment } from "@/data/types";
 
 const MOCK_TODAY = new Date("2025-01-15T12:00:00Z");
 const MOCK_TODAY_DATE = "2025-01-15";
 
-function formatLBP(n: number) {
-  return new Intl.NumberFormat("en-US").format(n) + " ل.ل";
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ar-LB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
 function daysBetween(start: string, end: string) {
-  const diff =
-    new Date(end).getTime() - new Date(start).getTime();
+  const diff = new Date(end).getTime() - new Date(start).getTime();
   return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
@@ -45,7 +32,6 @@ interface Props {
 export default function RentalDetailPage({ params }: Props) {
   const [, setLocation] = useLocation();
 
-  // Local mutable state — initialized from module array
   const [rental, setRental] = useState<Rental | null>(() => {
     return rentals.find((r) => r.id === params.id) ?? null;
   });
@@ -63,8 +49,15 @@ export default function RentalDetailPage({ params }: Props) {
     return (
       <div className="min-h-full">
         <PageHeader title="تفاصيل الإيجار" showBack />
-        <div className="flex items-center justify-center py-24 text-muted-foreground text-sm">
-          لم يتم العثور على الإيجار
+        <div className="flex flex-col items-center justify-center py-24 gap-4 px-6 text-center">
+          <AlertCircle className="w-12 h-12 text-muted-foreground" strokeWidth={1.5} />
+          <p className="text-muted-foreground text-sm">لم يتم العثور على الإيجار</p>
+          <button
+            onClick={() => setLocation("/rentals")}
+            className="text-primary font-medium text-sm active:opacity-70"
+          >
+            العودة إلى الإيجارات
+          </button>
         </div>
       </div>
     );
@@ -86,14 +79,12 @@ export default function RentalDetailPage({ params }: Props) {
   const days = daysBetween(rental.startDate, rental.endDate);
   const isActive = rental.status === "active";
 
-  // ── Helpers to sync local state + module array ────────────────────────────
   function syncRental(updated: Rental) {
     setRental(updated);
     const idx = rentals.findIndex((r) => r.id === updated.id);
     if (idx !== -1) rentals[idx] = updated;
   }
 
-  // ── Record Payment ────────────────────────────────────────────────────────
   function handleAddPayment() {
     const amount = parseInt(paymentAmount.replace(/,/g, ""), 10);
     if (!amount || amount <= 0) {
@@ -121,7 +112,6 @@ export default function RentalDetailPage({ params }: Props) {
     setTimeout(() => setSuccessMsg(""), 2500);
   }
 
-  // ── Return Vehicle ────────────────────────────────────────────────────────
   function handleReturn() {
     const updated: Rental = {
       ...rental,
@@ -129,7 +119,6 @@ export default function RentalDetailPage({ params }: Props) {
       returnDate: new Date(returnDate + "T12:00:00Z").toISOString(),
     };
     syncRental(updated);
-    // Mark each vehicle as available
     rental.vehicleIds.forEach((vid) => {
       const vIdx = vehicles.findIndex((v) => v.id === vid);
       if (vIdx !== -1) {
@@ -145,7 +134,7 @@ export default function RentalDetailPage({ params }: Props) {
     <div className="min-h-full">
       <PageHeader title="تفاصيل الإيجار" showBack />
 
-      {/* Success toast */}
+      {/* Success toast — consistent with MaintenancePage */}
       {successMsg && (
         <div className="mx-4 mt-3 px-4 py-3 rounded-xl bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))] text-sm font-semibold flex items-center gap-2 justify-end">
           <span>{successMsg}</span>
@@ -173,7 +162,7 @@ export default function RentalDetailPage({ params }: Props) {
           </span>
           {rental.returnDate && (
             <span className="text-xs text-muted-foreground">
-              أُعيدت: {formatDate(rental.returnDate)}
+              أُعيدت: {formatDateAr(rental.returnDate)}
             </span>
           )}
         </div>
@@ -188,6 +177,7 @@ export default function RentalDetailPage({ params }: Props) {
               href={`tel:${customer?.phone}`}
               onClick={(e) => e.preventDefault()}
               className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary flex-shrink-0"
+              aria-label="اتصال"
             >
               <Phone className="w-4 h-4" strokeWidth={2} />
             </a>
@@ -246,7 +236,7 @@ export default function RentalDetailPage({ params }: Props) {
             label="تاريخ البداية"
             value={
               <span className="flex items-center gap-1.5">
-                {formatDate(rental.startDate)}
+                {formatDateAr(rental.startDate)}
                 <Calendar className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
               </span>
             }
@@ -255,7 +245,7 @@ export default function RentalDetailPage({ params }: Props) {
             label="تاريخ الانتهاء"
             value={
               <span className="flex items-center gap-1.5">
-                {formatDate(rental.endDate)}
+                {formatDateAr(rental.endDate)}
                 <Calendar className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
               </span>
             }
@@ -328,7 +318,7 @@ export default function RentalDetailPage({ params }: Props) {
                     {formatLBP(p.amount)}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {formatDate(p.date)}
+                    {formatDateAr(p.date)}
                   </span>
                 </div>
               ))}
@@ -352,6 +342,7 @@ export default function RentalDetailPage({ params }: Props) {
                     setPaymentError("");
                   }}
                   className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-muted-foreground flex-shrink-0"
+                  aria-label="إلغاء"
                 >
                   <X className="w-4 h-4" strokeWidth={2} />
                 </button>

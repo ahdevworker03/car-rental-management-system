@@ -17,6 +17,8 @@ import { StatCard } from "@/components/ui/StatCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { MAINTENANCE_TYPES } from "@/components/ui/MaintenanceCard";
+import { formatLBP, formatDateShort } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   vehicles,
@@ -25,28 +27,17 @@ import {
   getVehicleById,
   getCustomerById,
 } from "@/data";
+import type { MaintenanceType } from "@/data/types";
 
 // ─── Mock date anchor ──────────────────────────────────────────────────────────
-// All date logic is anchored to this date to match the static mock data.
 const MOCK_TODAY = new Date("2025-01-15T12:00:00Z");
 const MOCK_MONTH = 0; // January
 const MOCK_YEAR = 2025;
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
-function formatLBP(amount: number): string {
-  return new Intl.NumberFormat("en-US").format(amount) + " ل.ل";
-}
-
 function daysFromToday(dateStr: string): number {
   const diff = new Date(dateStr).getTime() - MOCK_TODAY.getTime();
   return Math.ceil(diff / 86_400_000);
-}
-
-function formatDateAr(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("ar-LB", {
-    day: "numeric",
-    month: "long",
-  });
 }
 
 function dueLabelFor(days: number): { text: string; urgent: boolean } {
@@ -55,14 +46,6 @@ function dueLabelFor(days: number): { text: string; urgent: boolean } {
   if (days === 1) return { text: "غداً", urgent: true };
   return { text: `بعد ${days} أيام`, urgent: false };
 }
-
-const MAINTENANCE_LABELS: Record<string, string> = {
-  oil: "تغيير زيت",
-  inspection: "فحص ميكانيكي",
-  insurance: "تأمين",
-  registration: "تسجيل",
-  repair: "تصليح",
-};
 
 // ─── Derived data ──────────────────────────────────────────────────────────────
 const availableCount = vehicles.filter((v) => v.status === "available").length;
@@ -203,11 +186,7 @@ function RevenueCard({ onClick }: { onClick: () => void }) {
   );
 }
 
-function ActivityRow({
-  rentalId,
-}: {
-  rentalId: string;
-}) {
+function ActivityRow({ rentalId }: { rentalId: string }) {
   const rental = rentals.find((r) => r.id === rentalId);
   if (!rental) return null;
   const vehicle = getVehicleById(rental.vehicleIds[0]);
@@ -227,7 +206,7 @@ function ActivityRow({
           {vehicle.make} {vehicle.model}
         </div>
         <div className="text-xs text-muted-foreground truncate">
-          {customer.name} · {formatDateAr(rental.returnDate!)}
+          {customer.name} · {formatDateShort(rental.returnDate!)}
         </div>
       </div>
       <div className="text-sm font-bold text-foreground flex-shrink-0">
@@ -404,7 +383,7 @@ export default function DashboardPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-0.5">
                         <span className="text-sm font-bold text-foreground">
-                          {MAINTENANCE_LABELS[item.type] ?? item.type}
+                          {MAINTENANCE_TYPES[item.type as MaintenanceType]?.label ?? item.type}
                         </span>
                         <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[hsl(var(--status-danger-bg))] text-[hsl(var(--status-danger))]">
                           {due.text}
@@ -454,14 +433,14 @@ export default function DashboardPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-0.5">
                         <span className="text-sm font-bold text-foreground">
-                          {MAINTENANCE_LABELS[item.type] ?? item.type}
+                          {MAINTENANCE_TYPES[item.type as MaintenanceType]?.label ?? item.type}
                         </span>
                         <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[hsl(var(--status-maintenance-bg))] text-[hsl(var(--status-maintenance))]">
                           {due.text}
                         </span>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {vehicle.make} {vehicle.model} · {formatDateAr(item.dueDate)}
+                        {vehicle.make} {vehicle.model} · {formatDateShort(item.dueDate)}
                       </div>
                     </div>
                   </TaskCard>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Plus, Wrench } from "lucide-react";
+import { Plus, Wrench, CheckCircle } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -16,10 +16,10 @@ const MOCK_TODAY = new Date("2025-01-15T12:00:00Z");
 type FilterValue = "all" | "overdue" | "upcoming" | "completed";
 
 const FILTER_OPTIONS = [
-  { label: "الكل",     value: "all"       },
-  { label: "متأخرة",  value: "overdue"   },
-  { label: "قادمة",   value: "upcoming"  },
-  { label: "مكتملة",  value: "completed" },
+  { label: "الكل",    value: "all"       },
+  { label: "متأخرة", value: "overdue"   },
+  { label: "قادمة",  value: "upcoming"  },
+  { label: "مكتملة", value: "completed" },
 ];
 
 function sortRecords(records: MaintenanceRecord[]): MaintenanceRecord[] {
@@ -27,7 +27,6 @@ function sortRecords(records: MaintenanceRecord[]): MaintenanceRecord[] {
   return [...records].sort((a, b) => {
     const statusDiff = (ORDER[a.status] ?? 3) - (ORDER[b.status] ?? 3);
     if (statusDiff !== 0) return statusDiff;
-    // Within same status: overdue/upcoming → ascending due date; completed → descending
     if (a.status === "completed") {
       return new Date(b.completedDate ?? b.dueDate).getTime() -
              new Date(a.completedDate ?? a.dueDate).getTime();
@@ -39,7 +38,6 @@ function sortRecords(records: MaintenanceRecord[]): MaintenanceRecord[] {
 export default function MaintenancePage() {
   const [, setLocation] = useLocation();
 
-  // Local state — initialised from module array so mutations persist within session
   const [records, setRecords] = useState<MaintenanceRecord[]>(() => [...maintenance]);
   const [filter, setFilter] = useState<FilterValue>("all");
   const [search, setSearch] = useState("");
@@ -65,9 +63,7 @@ export default function MaintenancePage() {
     })
   );
 
-  // ── Counts for badge context ───────────────────────────────────────────────
   const overdueCount  = records.filter((r) => r.status === "overdue").length;
-  const upcomingCount = records.filter((r) => r.status === "upcoming").length;
 
   // ── Mark complete ─────────────────────────────────────────────────────────
   function handleMarkComplete(id: string) {
@@ -76,9 +72,7 @@ export default function MaintenancePage() {
       status: "completed",
       completedDate: MOCK_TODAY.toISOString(),
     };
-    // Update local state
     setRecords((prev) => prev.map((r) => (r.id === id ? updated : r)));
-    // Mutate module array
     const idx = maintenance.findIndex((r) => r.id === id);
     if (idx !== -1) maintenance[idx] = updated;
 
@@ -87,7 +81,6 @@ export default function MaintenancePage() {
     setTimeout(() => setSuccessMsg(""), 2500);
   }
 
-  // ── Toggle expand ─────────────────────────────────────────────────────────
   function handleToggle(id: string) {
     setExpandedId((prev) => (prev === id ? null : id));
   }
@@ -99,6 +92,7 @@ export default function MaintenancePage() {
         action={
           <button
             onClick={() => setLocation("/maintenance/add")}
+            aria-label="تسجيل صيانة جديدة"
             className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm active:scale-95 transition-transform"
           >
             <Plus className="w-5 h-5" strokeWidth={2.5} />
@@ -135,14 +129,15 @@ export default function MaintenancePage() {
         />
       </div>
 
-      {/* Success toast */}
+      {/* Success toast — consistent with RentalDetailPage */}
       {successMsg && (
-        <div className="mx-4 mt-1 px-4 py-2.5 rounded-xl bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))] text-sm font-semibold text-right">
-          ✓ {successMsg}
+        <div className="mx-4 mt-1 px-4 py-3 rounded-xl bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))] text-sm font-semibold flex items-center gap-2 justify-end">
+          <span>{successMsg}</span>
+          <CheckCircle className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
         </div>
       )}
 
-      <div className="px-4 pb-4 mt-3 space-y-3">
+      <div className="px-4 pb-6 mt-3 space-y-3">
         {filtered.length === 0 ? (
           <EmptyState
             icon={Wrench}
@@ -156,9 +151,9 @@ export default function MaintenancePage() {
                 : "لا توجد سجلات صيانة"
             }
             description={
-              filter === "overdue" || filter === "upcoming"
-                ? undefined
-                : "اضغط + لتسجيل صيانة جديدة"
+              filter === "all" || filter === "upcoming"
+                ? "اضغط + لتسجيل صيانة جديدة"
+                : undefined
             }
             action={
               filter === "all" || filter === "upcoming"
@@ -166,8 +161,6 @@ export default function MaintenancePage() {
                     label: "تسجيل صيانة",
                     onClick: () => setLocation("/maintenance/add"),
                   }
-                : filter === "overdue"
-                ? undefined
                 : undefined
             }
           />
