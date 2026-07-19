@@ -101,8 +101,8 @@ export default function RentalDetailPage({ params }: Props) {
       date: MOCK_TODAY.toISOString(),
     };
     const updated: Rental = {
-      ...rental,
-      payments: [...rental.payments, newPayment],
+      ...rental!,
+      payments: [...rental!.payments, newPayment],
     };
     syncRental(updated);
     setPaymentAmount("");
@@ -114,12 +114,12 @@ export default function RentalDetailPage({ params }: Props) {
 
   function handleReturn() {
     const updated: Rental = {
-      ...rental,
+      ...rental!,
       status: "ended",
       returnDate: new Date(returnDate + "T12:00:00Z").toISOString(),
     };
     syncRental(updated);
-    rental.vehicleIds.forEach((vid) => {
+    rental!.vehicleIds.forEach((vid) => {
       const vIdx = vehicles.findIndex((v) => v.id === vid);
       if (vIdx !== -1) {
         vehicles[vIdx] = { ...vehicles[vIdx], status: "available" };
