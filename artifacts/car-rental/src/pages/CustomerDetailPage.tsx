@@ -5,7 +5,7 @@ import { InfoRow } from "@/components/ui/InfoRow";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatLBP, formatDateAr } from "@/lib/format";
+import { formatLBP, formatDateAr, formatInitials } from "@/lib/format";
 import {
   getCustomerById,
   getRentalsForCustomer,
@@ -13,16 +13,6 @@ import {
   getTotalRemaining,
   getTotalPaid,
 } from "@/data";
-
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-function initials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("");
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function CustomerDetailPage({
@@ -88,7 +78,7 @@ export default function CustomerDetailPage({
           {/* Avatar + name header */}
           <div className="flex items-center gap-4 px-4 py-5 border-b border-border">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl flex-shrink-0">
-              {initials(customer.name)}
+              {formatInitials(customer.name)}
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-base font-bold text-foreground">{customer.name}</div>

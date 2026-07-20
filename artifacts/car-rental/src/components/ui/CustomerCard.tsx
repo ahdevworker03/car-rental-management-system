@@ -1,6 +1,6 @@
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatLBP } from "@/lib/format";
+import { formatLBP, formatInitials } from "@/lib/format";
 import type { Customer } from "@/data/types";
 
 interface CustomerCardProps {
@@ -9,15 +9,6 @@ interface CustomerCardProps {
   remainingBalance: number;
   onClick?: () => void;
   className?: string;
-}
-
-/** Two-letter Arabic initials from the customer name */
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/);
-  return parts
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("");
 }
 
 export function CustomerCard({
@@ -39,7 +30,7 @@ export function CustomerCard({
       <div className="flex items-center gap-3">
         {/* Avatar — RIGHT in RTL (first child) */}
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary font-bold text-base">
-          {initials(customer.name)}
+          {formatInitials(customer.name)}
         </div>
 
         {/* Content */}

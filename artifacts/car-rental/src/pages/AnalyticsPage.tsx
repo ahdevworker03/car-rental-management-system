@@ -1,9 +1,12 @@
 import { useLocation } from "wouter";
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle2, Users } from "lucide-react";
+
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+
 import { formatLBP } from "@/lib/format";
+
 import { vehicles, rentals, customers, getVehicleById, getCustomerById } from "@/data";
 
 // ─── Mock date anchor ─────────────────────────────────────────────────────────

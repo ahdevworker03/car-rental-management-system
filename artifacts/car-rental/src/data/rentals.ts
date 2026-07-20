@@ -1,8 +1,5 @@
 import { Rental } from "./types";
 
-// Using a fixed reference date for stability
-const TODAY = "2025-01-15T12:00:00Z";
-
 export const rentals: Rental[] = [
   {
     id: "r1",

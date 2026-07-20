@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Camera } from "lucide-react";
+
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
+
 import type { VehicleStatus } from "@/data";
 
 interface FormState {

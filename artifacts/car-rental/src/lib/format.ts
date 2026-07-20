@@ -24,3 +24,13 @@ export function formatDateShort(dateStr: string): string {
     month: "long",
   });
 }
+
+/** Two-letter initials from a name: "أحمد محمد" → "أم" */
+export function formatInitials(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("");
+}
