@@ -1,41 +1,113 @@
 # Car Rental Management System
 
-A mobile-optimised, Arabic-first internal business tool for small car rental companies in Lebanon. The system replaces paper notebooks and ad-hoc messaging with a structured interface to track vehicles, customers, rentals, and maintenance.
+An Arabic-first, mobile-optimised internal business tool for small car rental companies in Lebanon. The system is designed to replace the paper notebooks, WhatsApp conversations, and memory that owners currently rely on to manage fleets of 10-50 vehicles. It is currently a validation prototype with a complete frontend backed by static mock data, built to test product-market fit before committing to a full production build.
 
-This repository is a monorepo containing a frontend application, an API server stub, shared libraries, and product documentation. The project is currently a validation prototype with a complete frontend backed by static mock data.
+---
+
+## Business Context
+
+### The Problem
+
+Small Lebanese car rental businesses run their daily operations without dedicated software. Owners track rentals in notebooks, communicate with customers through WhatsApp, and remember maintenance schedules. As the number of vehicles and customers grows, this informal system creates real problems:
+
+- Rental end dates are forgotten or misremembered.
+- Customer contact information is lost or scattered.
+- It is not clear which vehicles are available at any given moment.
+- Maintenance tasks such as oil changes and insurance renewals are missed.
+- Revenue is difficult to calculate without manually summing payments.
+- There is no organised history of past rentals or vehicle performance.
+
+### The Target Users
+
+The system is designed for owners and managers of small car rental businesses with 10 to 50 vehicles. They are not technical users. Most rely on smartphones for everything and communicate primarily in Arabic. The interface must be usable without any training.
+
+### The Validation Prototype
+
+Rather than building a full production system and discovering that the product does not match what owners actually need, this project starts with a frontend-only prototype. The prototype mimics a fully functional application using hardcoded mock data. No data persists between sessions, there is no authentication, and no real backend exists yet.
+
+The prototype exists to answer one question: **"Would this replace your notebook?"** By putting a realistic, interactive interface in front of actual business owners, the project aims to validate core assumptions about workflows, terminology, and priorities before investing in backend infrastructure.
 
 ---
 
 ## Features
 
-- **Dashboard** -- Fleet status overview, daily revenue snapshot, upcoming maintenance alerts, quick-access action buttons.
-- **Vehicle Management** -- Add, view, and search vehicles. Each vehicle record includes status, specifications, photo gallery, and rental history.
-- **Customer Management** -- Add, view, and search customers. Customer profiles show contact information, active rentals, payment summary, and history.
-- **Rental Management** -- Create multi-step rentals (select vehicle, select customer, configure dates and payments). Track active and completed rentals with remaining balance.
-- **Maintenance Tracking** -- Log maintenance tasks with type, cost, and due dates. Filter by upcoming or completed status.
-- **Analytics** -- Revenue breakdown by month, fleet utilisation, top debtors, and per-vehicle earnings.
-- **Arabic RTL Interface** -- Full right-to-left layout with the Cairo typeface and Lebanese Pound currency formatting.
-- **Mobile-First Layout** -- Phone-frame viewport with a five-tab bottom navigation bar designed for on-the-go use by rental owners and staff.
+### Dashboard
+
+The home screen functions as a daily command centre. It shows fleet status counts (available, rented, under maintenance), upcoming rental returns, maintenance tasks due within the week, a monthly revenue snapshot with pending balances, and quick-action buttons for the most common tasks: renting a car and returning a car. Every item on the dashboard is a link to the relevant detail screen.
+
+### Vehicle Management
+
+Vehicles can be viewed in a searchable list with status filter chips. Each vehicle record stores make, model, year, plate number, mileage, daily rental price, and photographs. The vehicle detail screen displays all of this alongside the current rental status, a maintenance log, and full rental history. New vehicles can be added through a dedicated form.
+
+### Customer Management
+
+Customers are listed with their name, phone number, and a summary of active rentals and outstanding balance. A search bar allows finding customers by name or phone. The customer detail screen shows contact information alongside current and past rentals, plus a payment summary. Adding a new customer requires only a name, phone number, and location.
+
+### Rental Management
+
+Rentals are split into active and ended views using a segmented control. Each rental card shows the vehicle, customer, dates, and remaining balance. The rental detail screen provides the full picture: customer and vehicle information, payment history, and the ability to record additional payments or complete a return.
+
+Creating a new rental follows a multi-step flow: select available vehicles, select or add a customer, configure dates and pricing, then confirm. The flow is designed to be completed in under thirty seconds with minimal typing.
+
+### Maintenance Tracking
+
+Maintenance is displayed in upcoming and completed tabs. Each record includes the maintenance type (oil change, mechanical inspection, insurance, registration, or repair), the associated vehicle, due date, and cost. Tasks can be filtered, searched, and marked as complete. The add-maintenance form is a full-screen flow separate from the main navigation to allow focused data entry.
+
+### Analytics
+
+The analytics page provides a revenue breakdown by month, fleet status distribution (available, rented, under maintenance), a list of top debtors with their outstanding balances, and per-vehicle earnings. Charts render using Recharts.
+
+### User Experience
+
+The entire interface uses Arabic language and a right-to-left layout with the Cairo typeface. The app is framed in a phone-shaped viewport (max 480px width) and navigated via a five-tab bottom bar. Two full-screen flows (new rental, add maintenance) temporarily hide the tab bar to reduce distractions during data entry. Toast notifications, loading skeletons, and contextual empty states provide feedback throughout.
+
+---
+
+## Architecture
+
+This repository is a **pnpm workspace monorepo** that organises code into four top-level directories, each with a clear responsibility:
+
+```
+artifacts/     Deployable packages (the frontend app and the API server).
+lib/           Shared libraries consumed by the artifacts.
+scripts/       Repository-level utility scripts.
+Docs/          Product and design documentation.
+```
+
+The separation between `artifacts/` and `lib/` follows a standard monorepo pattern: deployable code lives in `artifacts/`, while reusable internal packages live in `lib/` and are pulled in as workspace dependencies. This makes dependencies explicit and allows each package to be type-checked and versioned independently.
+
+**Frontend (`artifacts/car-rental/`)** -- A single-page application built with React 19, TypeScript, Vite, and Tailwind CSS 4. It uses wouter for client-side routing, TanStack React Query for server-state management, react-hook-form with Zod for form validation, and shadcn/ui components (Radix UI primitives) for the UI layer. Mock data resides in `src/data/` as TypeScript modules with in-memory access functions. The frontend does not currently call any API; it reads and writes directly to these static data structures.
+
+**Backend (`artifacts/api-server/`)** -- An Express 5 server with CORS, JSON body parsing, and Pino logging. It currently exposes a single health-check endpoint at `/api/healthz`. The server imports Zod schemas from `@workspace/api-zod` and the database client from `@workspace/db`. The database schema (Drizzle ORM with PostgreSQL) is a stub -- the schema file exports an empty object. The server is bundled with esbuild and produces ESM output.
+
+**Shared Libraries:**
+
+- `lib/api-spec/` -- An OpenAPI 3.1 specification that defines the API contract. Orval reads this spec to generate the two packages below.
+- `lib/api-client-react/` -- Generated React Query hooks and a custom fetch client produced from the OpenAPI spec. These are ready to be consumed by the frontend once API routes are implemented.
+- `lib/api-zod/` -- Generated Zod schemas produced from the OpenAPI spec. These are used by the API server for request validation.
+- `lib/db/` -- The database layer using Drizzle ORM. It exports a configured PostgreSQL client and a schema placeholder awaiting table definitions.
+
+The direction of dependencies flows inward: the API server depends on `api-zod` and `db`, while the frontend will eventually depend on `api-client-react`. The `api-spec` package is the source of truth that both codegen targets derive from.
 
 ---
 
 ## Screens
 
-| Page               | Route              | Description                                          |
-| ------------------ | ------------------ | ---------------------------------------------------- |
-| Dashboard          | `/`                | Summary cards, quick actions, recent activity         |
-| Vehicles           | `/vehicles`        | Searchable vehicle list with status filters           |
-| Add Vehicle        | `/vehicles/add`    | Vehicle creation form                                 |
-| Vehicle Detail     | `/vehicles/:id`    | Full vehicle profile with history                     |
-| Customers          | `/customers`       | Customer list with active-rental and balance info     |
-| Add Customer       | `/customers/add`   | Customer creation form                                |
-| Customer Detail    | `/customers/:id`   | Customer profile with rentals and payment summary     |
-| Rentals            | `/rentals`         | Rental list with active/ended toggle and search       |
-| New Rental         | `/rentals/new`     | Multi-step rental creation wizard (full-screen)       |
-| Rental Detail      | `/rentals/:id`     | Rental details, payments, and return action           |
-| Maintenance        | `/maintenance`     | Maintenance list with upcoming/completed tabs         |
-| Add Maintenance    | `/maintenance/add` | Maintenance record form (full-screen)                 |
-| Analytics          | `/analytics`       | Revenue chart, fleet stats, per-vehicle earnings      |
+| Page               | Route              | Notes                                                      |
+| ------------------ | ------------------ | ---------------------------------------------------------- |
+| Dashboard          | `/`                | Fleet status, upcoming events, revenue snapshot            |
+| Vehicles           | `/vehicles`        | Searchable list with status filter chips                   |
+| Add Vehicle        | `/vehicles/add`    | Vehicle creation form                                      |
+| Vehicle Detail     | `/vehicles/:id`    | Vehicle profile with maintenance log and rental history    |
+| Customers          | `/customers`       | List with active rental count and balance per customer     |
+| Add Customer       | `/customers/add`   | Customer creation form                                     |
+| Customer Detail    | `/customers/:id`   | Customer profile with rentals, payments, and balance       |
+| Rentals            | `/rentals`         | Active/ended segmented list with search                    |
+| New Rental         | `/rentals/new`     | Multi-step rental creation wizard (full-screen)            |
+| Rental Detail      | `/rentals/:id`     | Rental details, payment history, return action             |
+| Maintenance        | `/maintenance`     | Upcoming/completed tabs with search and filters            |
+| Add Maintenance    | `/maintenance/add` | Maintenance record form (full-screen)                      |
+| Analytics          | `/analytics`       | Revenue chart, fleet distribution, per-vehicle earnings    |
 
 ---
 
@@ -43,57 +115,56 @@ This repository is a monorepo containing a frontend application, an API server s
 
 ### Frontend
 
-- **React 19** with TypeScript
-- **Vite 7** (build tool and dev server)
-- **Tailwind CSS 4** with `@tailwindcss/vite` plugin and `@tailwindcss/typography`
-- **wouter** (lightweight client-side routing)
-- **TanStack React Query 5** (server-state management)
-- **react-hook-form** with `@hookform/resolvers` (form management and validation)
-- **Zod** (schema validation)
-- **shadcn/ui** (component library built on Radix UI primitives)
-- **lucide-react** (icons)
-- **framer-motion** (animations and transitions)
-- **recharts** (charts)
-- **date-fns** and **react-day-picker** (date utilities)
-- **sonner** (toast notifications)
-- **embla-carousel-react**, **cmdk**, **vaul**, **input-otp**
+| Technology | Purpose |
+|---|---|
+| React 19 with TypeScript | Application framework with static typing |
+| Vite 7 | Development server and production bundler |
+| Tailwind CSS 4 with `@tailwindcss/vite` and `@tailwindcss/typography` | Utility-first CSS with on-demand compilation via the Vite plugin |
+| wouter | Lightweight client-side router with a hook-based API; chosen over heavier alternatives for its small bundle size |
+| TanStack React Query 5 | Server-state cache and data-fetching layer (ready for when the API exists) |
+| react-hook-form with `@hookform/resolvers` | Performant form state management with Zod schema integration |
+| Zod | Runtime schema validation, shared between frontend and backend |
+| shadcn/ui (Radix UI primitives) | Accessible, unstyled component primitives with Tailwind-based styling |
+| framer-motion | Declarative animations and layout transitions |
+| recharts | Charting library for the analytics page |
+| date-fns | Date manipulation and formatting |
+| lucide-react | Icon set |
+| sonner | Toast notification system |
 
-### Backend (in early development)
+### Backend
 
-- **Express 5** (HTTP server)
-- **Drizzle ORM** with PostgreSQL (`pg`)
-- **Pino** (logging)
-- **Zod** (request validation)
-- **esbuild** (bundling)
+| Technology | Purpose |
+|---|---|
+| Express 5 | HTTP server framework |
+| Drizzle ORM | Type-safe database query builder and schema definition |
+| PostgreSQL via `pg` | Relational database |
+| Pino with pino-http | Structured logging for the server and HTTP requests |
+| esbuild | Fast bundler for the server code (outputs ESM) |
+| Zod | Request payload validation, shared from `@workspace/api-zod` |
 
-### Shared Infrastructure
+### Workspace and Tooling
 
-- **pnpm workspaces** (monorepo management)
-- **TypeScript 5.9** with project references across packages
-- **OpenAPI 3.1** specification with **Orval** code generation
-- **Drizzle Kit** (schema push and migrations)
+| Technology | Purpose |
+|---|---|
+| pnpm workspaces with catalog | Dependency management across the monorepo with shared version constraints |
+| TypeScript 5.9 with project references | Incremental type-checking and strict mode across packages |
+| OpenAPI 3.1 with Orval | API contract definition and automated code generation for the client and validation schemas |
+| Drizzle Kit | Database schema push (development-only migration workflow) |
+| esbuild | Backend bundler |
 
 ---
 
-## Repository Structure
+## Documentation
 
-```
-artifacts/
-  car-rental/          Frontend React application
-  api-server/          Express API server (stub)
-lib/
-  api-client-react/    Generated React Query API client from OpenAPI spec
-  api-spec/            OpenAPI specification and Orval codegen config
-  api-zod/             Generated Zod schemas from OpenAPI spec
-  db/                  Database layer with Drizzle ORM and PostgreSQL client
-scripts/               Utility scripts (post-merge hook, etc.)
-Docs/                  Product specification, screen blueprints, and design system
-```
+The `Docs/` directory contains three specification documents and a product overview:
 
-- `artifacts/` -- Deployable packages (frontend app and API server).
-- `lib/` -- Shared packages consumed by the artifacts.
-- `scripts/` -- Helper scripts for repository maintenance.
-- `Docs/` -- Project documentation (specification, blueprints, design system).
+- **`01-validation-prototype-specification.md`** -- The single source of truth for the prototype. It defines the business context, target users, core modules, UX principles, user workflows, validation goals, and explicit out-of-scope items. Read this first to understand the product decisions behind the implementation.
+
+- **`02-screen-blueprints.md`** -- Functional blueprints for every screen. Each blueprint describes the purpose, information displayed, user actions, navigation, and empty states. This document bridges the product spec and the UI implementation.
+
+- **`03-design-system.md`** -- A lightweight design language covering brand personality, visual principles, colour tokens, typography (Cairo), component patterns, RTL guidelines, mobile constraints, and accessibility. This is the reference for visual consistency.
+
+- **`1-product specification/english.md`** -- A shorter English overview of the product concept, problem, solution, and long-term vision.
 
 ---
 
@@ -120,7 +191,7 @@ pnpm dev
 
 The application runs at `http://localhost:5173` by default.
 
-### Build
+### Production Build
 
 Type-check the entire project and build all packages:
 
@@ -134,35 +205,56 @@ pnpm build
 pnpm typecheck
 ```
 
+### API Server
+
+To start the API server in development mode:
+
+```sh
+pnpm --filter @workspace/api-server run dev
+```
+
+Requires a PostgreSQL database with a `DATABASE_URL` environment variable. The server runs on port 3001 by default.
+
 ---
 
 ## Project Status
 
-This is a **validation prototype**. The frontend is fully implemented with static mock data to demonstrate functionality and test product-market fit. The backend API server and database schema are stubs awaiting implementation. No data persists between sessions.
+**Implemented:**
+
+- Complete frontend with 14 screens covering dashboard, vehicles, customers, rentals, maintenance, and analytics.
+- Arabic RTL layout with mobile-first phone-frame design.
+- Multi-step rental creation flow.
+- Mock data layer with 7 vehicles, 6 customers, 7 rentals, and 7 maintenance records.
+- Data access helpers for cross-referencing entities (rentals by vehicle, rentals by customer, revenue calculations, pending balances).
+- OpenAPI specification with generated React Query client and Zod schemas.
+- Health-check endpoint on the API server.
+
+**In Progress (stubs exist but are not functional):**
+
+- Backend API routes beyond the health check.
+- Database schema definitions.
+- Frontend-to-API integration (the generated client exists but is not wired up).
+
+**Planned:**
+
+- Authentication and multi-tenant user management.
+- Persistent data storage via the API.
+- Reporting and export (PDF, CSV).
 
 ---
 
-## Documentation
+## Future Roadmap
 
-Detailed product documentation is located in the `Docs/` directory:
+1. Define the database schema in `lib/db/` and push it to PostgreSQL.
+2. Implement REST API routes for all CRUD operations (vehicles, customers, rentals, maintenance).
+3. Replace the in-memory mock data layer with TanStack React Query calls to the API.
+4. Add user authentication and session management.
+5. Build reporting features for data export.
 
-- `01-validation-prototype-specification.md` -- Product specification, business context, and user workflows.
-- `02-screen-blueprints.md` -- Functional blueprints for every screen.
-- `03-design-system.md` -- Design philosophy, colour tokens, typography, and component guidelines.
-- `1-product specification/` -- English and Arabic product overviews.
+These items reflect the repository's current trajectory. Nothing beyond these steps has been scoped.
 
 ---
 
 ## License
 
-Licensed under the [MIT License](LICENSE).
-
----
-
-## Future Improvements
-
-- Implement backend API routes for all CRUD operations.
-- Define the database schema and connect the frontend to live data.
-- Add authentication and user management for multi-tenant use.
-- Replace mock data with persisted state via the API.
-- Add reporting and export features (PDF, CSV).
+[MIT](LICENSE)
