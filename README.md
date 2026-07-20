@@ -2,7 +2,9 @@
 
 An Arabic-first, mobile-optimised internal business tool for small car rental companies in Lebanon. The system is designed to replace the paper notebooks, WhatsApp conversations, and memory that owners currently rely on to manage fleets of 10-50 vehicles. It is currently a validation prototype with a complete frontend backed by static mock data, built to test product-market fit before committing to a full production build.
 
----
+## Live Demo
+
+🔗 https://car-rental-management-system-car-re.vercel.app/
 
 ## Business Context
 
@@ -70,7 +72,6 @@ This repository is a **pnpm workspace monorepo** that organises code into four t
 ```
 artifacts/     Deployable packages (the frontend app and the API server).
 lib/           Shared libraries consumed by the artifacts.
-scripts/       Repository-level utility scripts.
 Docs/          Product and design documentation.
 ```
 
@@ -93,21 +94,21 @@ The direction of dependencies flows inward: the API server depends on `api-zod` 
 
 ## Screens
 
-| Page               | Route              | Notes                                                      |
-| ------------------ | ------------------ | ---------------------------------------------------------- |
-| Dashboard          | `/`                | Fleet status, upcoming events, revenue snapshot            |
-| Vehicles           | `/vehicles`        | Searchable list with status filter chips                   |
-| Add Vehicle        | `/vehicles/add`    | Vehicle creation form                                      |
-| Vehicle Detail     | `/vehicles/:id`    | Vehicle profile with maintenance log and rental history    |
-| Customers          | `/customers`       | List with active rental count and balance per customer     |
-| Add Customer       | `/customers/add`   | Customer creation form                                     |
-| Customer Detail    | `/customers/:id`   | Customer profile with rentals, payments, and balance       |
-| Rentals            | `/rentals`         | Active/ended segmented list with search                    |
-| New Rental         | `/rentals/new`     | Multi-step rental creation wizard (full-screen)            |
-| Rental Detail      | `/rentals/:id`     | Rental details, payment history, return action             |
-| Maintenance        | `/maintenance`     | Upcoming/completed tabs with search and filters            |
-| Add Maintenance    | `/maintenance/add` | Maintenance record form (full-screen)                      |
-| Analytics          | `/analytics`       | Revenue chart, fleet distribution, per-vehicle earnings    |
+| Page            | Route              | Notes                                                   |
+| --------------- | ------------------ | ------------------------------------------------------- |
+| Dashboard       | `/`                | Fleet status, upcoming events, revenue snapshot         |
+| Vehicles        | `/vehicles`        | Searchable list with status filter chips                |
+| Add Vehicle     | `/vehicles/add`    | Vehicle creation form                                   |
+| Vehicle Detail  | `/vehicles/:id`    | Vehicle profile with maintenance log and rental history |
+| Customers       | `/customers`       | List with active rental count and balance per customer  |
+| Add Customer    | `/customers/add`   | Customer creation form                                  |
+| Customer Detail | `/customers/:id`   | Customer profile with rentals, payments, and balance    |
+| Rentals         | `/rentals`         | Active/ended segmented list with search                 |
+| New Rental      | `/rentals/new`     | Multi-step rental creation wizard (full-screen)         |
+| Rental Detail   | `/rentals/:id`     | Rental details, payment history, return action          |
+| Maintenance     | `/maintenance`     | Upcoming/completed tabs with search and filters         |
+| Add Maintenance | `/maintenance/add` | Maintenance record form (full-screen)                   |
+| Analytics       | `/analytics`       | Revenue chart, fleet distribution, per-vehicle earnings |
 
 ---
 
@@ -115,56 +116,42 @@ The direction of dependencies flows inward: the API server depends on `api-zod` 
 
 ### Frontend
 
-| Technology | Purpose |
-|---|---|
-| React 19 with TypeScript | Application framework with static typing |
-| Vite 7 | Development server and production bundler |
-| Tailwind CSS 4 with `@tailwindcss/vite` and `@tailwindcss/typography` | Utility-first CSS with on-demand compilation via the Vite plugin |
-| wouter | Lightweight client-side router with a hook-based API; chosen over heavier alternatives for its small bundle size |
-| TanStack React Query 5 | Server-state cache and data-fetching layer (ready for when the API exists) |
-| react-hook-form with `@hookform/resolvers` | Performant form state management with Zod schema integration |
-| Zod | Runtime schema validation, shared between frontend and backend |
-| shadcn/ui (Radix UI primitives) | Accessible, unstyled component primitives with Tailwind-based styling |
-| framer-motion | Declarative animations and layout transitions |
-| recharts | Charting library for the analytics page |
-| date-fns | Date manipulation and formatting |
-| lucide-react | Icon set |
-| sonner | Toast notification system |
+| Technology                                                            | Purpose                                                                                                          |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| React 19 with TypeScript                                              | Application framework with static typing                                                                         |
+| Vite 7                                                                | Development server and production bundler                                                                        |
+| Tailwind CSS 4 with `@tailwindcss/vite` and `@tailwindcss/typography` | Utility-first CSS with on-demand compilation via the Vite plugin                                                 |
+| wouter                                                                | Lightweight client-side router with a hook-based API; chosen over heavier alternatives for its small bundle size |
+| TanStack React Query 5                                                | Server-state cache and data-fetching layer (ready for when the API exists)                                       |
+| react-hook-form with `@hookform/resolvers`                            | Performant form state management with Zod schema integration                                                     |
+| Zod                                                                   | Runtime schema validation, shared between frontend and backend                                                   |
+| shadcn/ui (Radix UI primitives)                                       | Accessible, unstyled component primitives with Tailwind-based styling                                            |
+| framer-motion                                                         | Declarative animations and layout transitions                                                                    |
+| recharts                                                              | Charting library for the analytics page                                                                          |
+| date-fns                                                              | Date manipulation and formatting                                                                                 |
+| lucide-react                                                          | Icon set                                                                                                         |
+| sonner                                                                | Toast notification system                                                                                        |
 
 ### Backend
 
-| Technology | Purpose |
-|---|---|
-| Express 5 | HTTP server framework |
-| Drizzle ORM | Type-safe database query builder and schema definition |
-| PostgreSQL via `pg` | Relational database |
-| Pino with pino-http | Structured logging for the server and HTTP requests |
-| esbuild | Fast bundler for the server code (outputs ESM) |
-| Zod | Request payload validation, shared from `@workspace/api-zod` |
+| Technology          | Purpose                                                      |
+| ------------------- | ------------------------------------------------------------ |
+| Express 5           | HTTP server framework                                        |
+| Drizzle ORM         | Type-safe database query builder and schema definition       |
+| PostgreSQL via `pg` | Relational database                                          |
+| Pino with pino-http | Structured logging for the server and HTTP requests          |
+| esbuild             | Fast bundler for the server code (outputs ESM)               |
+| Zod                 | Request payload validation, shared from `@workspace/api-zod` |
 
 ### Workspace and Tooling
 
-| Technology | Purpose |
-|---|---|
-| pnpm workspaces with catalog | Dependency management across the monorepo with shared version constraints |
-| TypeScript 5.9 with project references | Incremental type-checking and strict mode across packages |
-| OpenAPI 3.1 with Orval | API contract definition and automated code generation for the client and validation schemas |
-| Drizzle Kit | Database schema push (development-only migration workflow) |
-| esbuild | Backend bundler |
-
----
-
-## Documentation
-
-The `Docs/` directory contains three specification documents and a product overview:
-
-- **`01-validation-prototype-specification.md`** -- The single source of truth for the prototype. It defines the business context, target users, core modules, UX principles, user workflows, validation goals, and explicit out-of-scope items. Read this first to understand the product decisions behind the implementation.
-
-- **`02-screen-blueprints.md`** -- Functional blueprints for every screen. Each blueprint describes the purpose, information displayed, user actions, navigation, and empty states. This document bridges the product spec and the UI implementation.
-
-- **`03-design-system.md`** -- A lightweight design language covering brand personality, visual principles, colour tokens, typography (Cairo), component patterns, RTL guidelines, mobile constraints, and accessibility. This is the reference for visual consistency.
-
-- **`1-product specification/english.md`** -- A shorter English overview of the product concept, problem, solution, and long-term vision.
+| Technology                             | Purpose                                                                                     |
+| -------------------------------------- | ------------------------------------------------------------------------------------------- |
+| pnpm workspaces with catalog           | Dependency management across the monorepo with shared version constraints                   |
+| TypeScript 5.9 with project references | Incremental type-checking and strict mode across packages                                   |
+| OpenAPI 3.1 with Orval                 | API contract definition and automated code generation for the client and validation schemas |
+| Drizzle Kit                            | Database schema push (development-only migration workflow)                                  |
+| esbuild                                | Backend bundler                                                                             |
 
 ---
 
