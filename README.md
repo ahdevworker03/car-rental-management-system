@@ -6,6 +6,18 @@ An Arabic-first, mobile-optimised internal business tool for small car rental co
 
 🔗 https://car-rental-management-system-car-re.vercel.app/
 
+## Project Status
+
+✅ **Frontend MVP Complete** — All 14 screens render with functional forms and mock data.
+
+✅ **Live on Vercel** — The frontend is deployed and accessible at the URL above.
+
+⏳ **Backend planned for future development** — The API server and database are outside MVP scope.
+
+⏳ **Authentication not implemented** — No user accounts, roles, or sessions.
+
+⏳ **Database not implemented** — All data is in-memory and lost on page reload.
+
 ## Business Context
 
 ### The Problem
