@@ -57,7 +57,10 @@ export default function AddVehiclePage() {
   }
 
   const isFormFilled =
-    form.make.trim() && form.model.trim() && form.plate.trim() && form.dailyPrice.trim();
+    form.make.trim().length > 0 &&
+    form.model.trim().length > 0 &&
+    form.plate.trim().length > 0 &&
+    form.dailyPrice.trim().length > 0;
 
   return (
     <div className="min-h-full pb-8">

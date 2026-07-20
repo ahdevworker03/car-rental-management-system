@@ -1,8 +1,6 @@
 import { useLocation } from "wouter";
 import {
   Car,
-  Users,
-  FileText,
   Wrench,
   Plus,
   ChevronLeft,
@@ -14,7 +12,6 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { MAINTENANCE_TYPES } from "@/components/ui/MaintenanceCard";

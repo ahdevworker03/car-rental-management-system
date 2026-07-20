@@ -41,12 +41,11 @@ testem.log
 .DS_Store
 Thumbs.db
 
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
-
-# Replit
+# Replit artifacts
 .cache/
 .local/
+.replit-artifact
+attached_assets/
 
-#documentation
+# documentation
 /Docs/

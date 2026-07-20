@@ -42,7 +42,8 @@ export default function AddCustomerPage() {
     setLocation("/customers");
   }
 
-  const isFormFilled = form.name.trim() && form.phone.trim();
+  const isFormFilled =
+    form.name.trim().length > 0 && form.phone.trim().length > 0;
 
   return (
     <div className="min-h-full pb-8">

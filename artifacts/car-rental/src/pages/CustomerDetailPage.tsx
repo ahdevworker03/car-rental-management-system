@@ -4,14 +4,12 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { InfoRow } from "@/components/ui/InfoRow";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { formatLBP, formatDateAr, formatInitials } from "@/lib/format";
 import {
   getCustomerById,
   getRentalsForCustomer,
   getVehicleById,
   getTotalRemaining,
-  getTotalPaid,
 } from "@/data";
 
 // ─── Component ────────────────────────────────────────────────────────────────
