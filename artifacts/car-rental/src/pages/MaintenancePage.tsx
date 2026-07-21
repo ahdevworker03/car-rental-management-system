@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useSearchParams } from "wouter";
 import { Plus, Wrench, CheckCircle } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -37,9 +37,10 @@ function sortRecords(records: MaintenanceRecord[]): MaintenanceRecord[] {
 
 export default function MaintenancePage() {
   const [, setLocation] = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [records, setRecords] = useState<MaintenanceRecord[]>(() => [...maintenance]);
-  const [filter, setFilter] = useState<FilterValue>("all");
+  const filter = (searchParams.get("filter") as FilterValue) || "all";
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
@@ -105,7 +106,7 @@ export default function MaintenancePage() {
         {overdueCount > 0 && (
           <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[hsl(var(--status-danger-bg))] border border-[hsl(var(--status-danger))]/20">
             <button
-              onClick={() => setFilter("overdue")}
+              onClick={() => setSearchParams({ filter: "overdue" }, { replace: true })}
               className="text-xs font-bold text-[hsl(var(--status-danger))] underline"
             >
               عرض المتأخرة
@@ -119,13 +120,21 @@ export default function MaintenancePage() {
         <FilterChips
           options={FILTER_OPTIONS}
           value={filter}
-          onChange={(v) => setFilter(v as FilterValue)}
+          onChange={(v) => {
+            const val = v as FilterValue;
+            if (val === "all") {
+              setSearchParams({}, { replace: true });
+            } else {
+              setSearchParams({ filter: val }, { replace: true });
+            }
+          }}
         />
 
         <SearchBar
           placeholder="ابحث بالسيارة أو نوع الصيانة..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onClear={() => setSearch("")}
         />
       </div>
 
@@ -138,32 +147,47 @@ export default function MaintenancePage() {
       )}
 
       <div className="px-4 pb-6 mt-3 space-y-3">
+        {(search || filter !== "all") && filtered.length > 0 && (
+          <p className="text-xs text-muted-foreground text-right px-1">
+            عرض {filtered.length} من أصل {records.length} سجل
+          </p>
+        )}
+
         {filtered.length === 0 ? (
-          <EmptyState
-            icon={Wrench}
-            title={
-              filter === "overdue"
-                ? "لا توجد صيانة متأخرة"
-                : filter === "upcoming"
-                ? "لا توجد صيانة قادمة"
-                : filter === "completed"
-                ? "لم يتم تسجيل أي صيانة مكتملة بعد"
-                : "لا توجد سجلات صيانة"
-            }
-            description={
-              filter === "all" || filter === "upcoming"
-                ? "اضغط + لتسجيل صيانة جديدة"
-                : undefined
-            }
-            action={
-              filter === "all" || filter === "upcoming"
-                ? {
-                    label: "تسجيل صيانة",
-                    onClick: () => setLocation("/maintenance/add"),
-                  }
-                : undefined
-            }
-          />
+          search ? (
+            <EmptyState
+              icon={Wrench}
+              title="لا توجد نتائج"
+              description="جرّب تغيير كلمة البحث أو إزالة بعض الفلاتر"
+              className="py-16"
+            />
+          ) : (
+            <EmptyState
+              icon={Wrench}
+              title={
+                filter === "overdue"
+                  ? "لا توجد صيانة متأخرة"
+                  : filter === "upcoming"
+                  ? "لا توجد صيانة قادمة"
+                  : filter === "completed"
+                  ? "لم يتم تسجيل أي صيانة مكتملة بعد"
+                  : "لا توجد سجلات صيانة"
+              }
+              description={
+                filter === "all" || filter === "upcoming"
+                  ? "اضغط + لتسجيل صيانة جديدة"
+                  : undefined
+              }
+              action={
+                filter === "all" || filter === "upcoming"
+                  ? {
+                      label: "تسجيل صيانة",
+                      onClick: () => setLocation("/maintenance/add"),
+                    }
+                  : undefined
+              }
+            />
+          )
         ) : (
           filtered.map((record) => {
             const vehicle = getVehicleById(record.vehicleId);

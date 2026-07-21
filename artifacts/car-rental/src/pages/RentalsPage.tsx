@@ -65,30 +65,47 @@ export default function RentalsPage() {
           placeholder="ابحث بالعميل أو السيارة..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onClear={() => setSearch("")}
         />
+        {(search || filtered.length > 0) && (
+          <p className="text-xs text-muted-foreground text-right">
+            {filtered.length === 0
+              ? `لم يتم العثور على نتائج`
+              : `عرض ${filtered.length} ${tab === "active" ? "إيجار نشط" : "إيجار منتهي"}`}
+          </p>
+        )}
       </div>
 
       <div className="px-4 pb-6 space-y-3">
         {filtered.length === 0 ? (
-          <EmptyState
-            icon={FileText}
-            title={
-              tab === "active"
-                ? "لا توجد إيجارات نشطة"
-                : "لا توجد إيجارات منتهية"
-            }
-            description={
-              tab === "active" ? "اضغط على + لإنشاء إيجار جديد" : undefined
-            }
-            action={
-              tab === "active"
-                ? {
-                    label: "إيجار جديد",
-                    onClick: () => setLocation("/rentals/new"),
-                  }
-                : undefined
-            }
-          />
+          search ? (
+            <EmptyState
+              icon={FileText}
+              title="لا توجد نتائج"
+              description="جرّب تغيير كلمة البحث"
+              className="py-16"
+            />
+          ) : (
+            <EmptyState
+              icon={FileText}
+              title={
+                tab === "active"
+                  ? "لا توجد إيجارات نشطة"
+                  : "لا توجد إيجارات منتهية"
+              }
+              description={
+                tab === "active" ? "اضغط على + لإنشاء إيجار جديد" : undefined
+              }
+              action={
+                tab === "active"
+                  ? {
+                      label: "إيجار جديد",
+                      onClick: () => setLocation("/rentals/new"),
+                    }
+                  : undefined
+              }
+            />
+          )
         ) : (
           filtered.map((rental) => {
             const customer = getCustomerById(rental.customerId);

@@ -54,10 +54,16 @@ export default function CustomersPage() {
 
       <div className="px-4 pt-4 pb-3">
         <SearchBar
-          placeholder="ابحث بالاسم أو رقم الهاتف..."
+          placeholder="ابحث باسم العميل أو رقم الهاتف..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onClear={() => setSearch("")}
         />
+        {search && filtered.length > 0 && (
+          <p className="text-xs text-muted-foreground text-right mt-2">
+            عرض {filtered.length} من أصل {customers.length} عميل
+          </p>
+        )}
       </div>
 
       <div className="px-4 pb-6 space-y-3">

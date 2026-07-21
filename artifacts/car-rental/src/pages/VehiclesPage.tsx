@@ -76,6 +76,7 @@ export default function VehiclesPage() {
           placeholder="ابحث باسم السيارة أو رقم اللوحة..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onClear={() => setSearch("")}
         />
         <FilterChips
           options={FILTER_OPTIONS}
@@ -89,6 +90,11 @@ export default function VehiclesPage() {
             }
           }}
         />
+        {(search || filter !== "all") && filtered.length > 0 && (
+          <p className="text-xs text-muted-foreground text-right">
+            عرض {filtered.length} من أصل {vehicles.length} سيارة
+          </p>
+        )}
       </div>
 
       <div className="px-4 pb-6 space-y-3">
@@ -97,7 +103,7 @@ export default function VehiclesPage() {
             <EmptyState
               icon={Car}
               title="لا توجد نتائج"
-              description="جرّب تغيير كلمة البحث أو الفلتر"
+              description="جرّب تغيير كلمة البحث أو إزالة بعض الفلاتر"
               className="py-16"
             />
           ) : (
