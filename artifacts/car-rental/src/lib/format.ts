@@ -3,26 +3,36 @@
  * Import these instead of redefining per-page.
  */
 
-/** Format a number as Lebanese Pounds: 1,500,000 ل.ل */
+const LEBANESE_MONTHS = [
+  "كانون الثاني",
+  "شباط",
+  "آذار",
+  "نيسان",
+  "أيار",
+  "حزيران",
+  "تموز",
+  "آب",
+  "أيلول",
+  "تشرين الأول",
+  "تشرين الثاني",
+  "كانون الأول",
+];
+
+/** Format a number as dollars: $1,500,000 */
 export function formatLBP(n: number): string {
-  return new Intl.NumberFormat("en-US").format(n) + " ل.ل";
+  return "$" + new Intl.NumberFormat("en-US").format(n);
 }
 
-/** Full Arabic date with year: ١٥ يناير ٢٠٢٥ */
+/** Full date with Western numerals and Lebanese month names: 15 كانون الثاني 2025 */
 export function formatDateAr(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("ar-LB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  const d = new Date(dateStr);
+  return `${d.getDate()} ${LEBANESE_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-/** Short Arabic date without year: ١٥ يناير */
+/** Short date without year: 15 كانون الثاني */
 export function formatDateShort(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("ar-LB", {
-    day: "numeric",
-    month: "long",
-  });
+  const d = new Date(dateStr);
+  return `${d.getDate()} ${LEBANESE_MONTHS[d.getMonth()]}`;
 }
 
 /** Two-letter initials from a name: "أحمد محمد" → "أم" */

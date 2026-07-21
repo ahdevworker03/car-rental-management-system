@@ -157,7 +157,7 @@ function RevenueCard({ onClick }: { onClick: () => void }) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-primary-foreground/80">
           <TrendingUp className="w-4 h-4" strokeWidth={2} />
-          <span className="text-sm font-medium">دخل يناير ٢٠٢٥</span>
+            <span className="text-sm font-medium">دخل كانون الثاني 2025</span>
         </div>
         <ChevronLeft className="w-4 h-4 text-primary-foreground/60" strokeWidth={2} />
       </div>
@@ -227,7 +227,7 @@ export default function DashboardPage() {
         {/* ── Fleet Status ──────────────────────────────────────────────── */}
         <section>
           <SectionHeader
-            title="حالة الأسطول"
+            title="حالة السيارات"
             action={
               <button onClick={() => setLocation("/vehicles")} className="flex items-center gap-1">
                 عرض الكل
@@ -240,19 +240,19 @@ export default function DashboardPage() {
               label="متاحة"
               value={availableCount}
               variant="available"
-              onClick={() => setLocation("/vehicles")}
+              onClick={() => setLocation("/vehicles?filter=available")}
             />
             <StatCard
               label="مؤجرة"
               value={rentedCount}
               variant="rented"
-              onClick={() => setLocation("/rentals")}
+              onClick={() => setLocation("/vehicles?filter=rented")}
             />
             <StatCard
               label="صيانة"
               value={maintenanceCount}
               variant="maintenance"
-              onClick={() => setLocation("/maintenance")}
+              onClick={() => setLocation("/vehicles?filter=maintenance")}
             />
           </div>
         </section>
@@ -264,7 +264,7 @@ export default function DashboardPage() {
 
         {/* ── Quick Actions ─────────────────────────────────────────────── */}
         <section>
-          <SectionHeader title="إجراءات سريعة" />
+          <SectionHeader title="الإجراءات الأساسية" />
           <div className="grid grid-cols-2 gap-3">
             <QuickActionButton
               icon={Car}

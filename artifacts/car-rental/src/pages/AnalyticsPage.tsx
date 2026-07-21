@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
 
           {/* Main revenue card */}
           <div className="rounded-2xl bg-primary p-5 text-white mb-3">
-            <p className="text-sm font-medium opacity-80 mb-1">إيرادات يناير ٢٠٢٥</p>
+            <p className="text-sm font-medium opacity-80 mb-1">إيرادات كانون الثاني 2025</p>
             <p className="text-3xl font-bold tracking-tight">{formatLBP(thisMonthRevenue)}</p>
 
             {revenueChange !== null && (
@@ -177,7 +177,7 @@ export default function AnalyticsPage() {
 
         {/* ── Section 3: Fleet status ────────────────────────────────────── */}
         <section>
-          <SectionHeader title="حالة الأسطول" />
+          <SectionHeader title="حالة السيارات" />
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="rounded-xl bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))] p-3 text-center">

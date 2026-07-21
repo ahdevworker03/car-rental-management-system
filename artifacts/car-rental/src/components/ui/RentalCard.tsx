@@ -1,6 +1,6 @@
 import { Car, Calendar, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatLBP } from "@/lib/format";
+import { formatLBP, formatDateShort } from "@/lib/format";
 import type { Rental } from "@/data/types";
 
 interface RentalCardProps {
@@ -10,14 +10,6 @@ interface RentalCardProps {
   vehiclePlate: string;
   onClick?: () => void;
   className?: string;
-}
-
-/** Compact date without year — stays local since it uses month:"short" */
-function formatDateCompact(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ar-LB", {
-    day: "numeric",
-    month: "short",
-  });
 }
 
 function getTotalPaid(rental: Rental) {
@@ -70,9 +62,9 @@ export function RentalCard({
 
       {/* Row 3: Date range — RTL order: startDate right (first), endDate left (last) */}
       <div className="flex items-center justify-end gap-1.5 mb-3">
-        <span className="text-xs text-muted-foreground">{formatDateCompact(rental.endDate)}</span>
+        <span className="text-xs text-muted-foreground">{formatDateShort(rental.endDate)}</span>
         <span className="text-xs text-muted-foreground">—</span>
-        <span className="text-xs text-muted-foreground">{formatDateCompact(rental.startDate)}</span>
+        <span className="text-xs text-muted-foreground">{formatDateShort(rental.startDate)}</span>
         <Calendar className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" strokeWidth={1.5} />
       </div>
 

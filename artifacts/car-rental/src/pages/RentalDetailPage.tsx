@@ -9,6 +9,7 @@ import {
   RotateCcw,
   X,
   AlertCircle,
+  FileEdit,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -182,9 +183,12 @@ export default function RentalDetailPage({ params }: Props) {
               <Phone className="w-4 h-4" strokeWidth={2} />
             </a>
             <div className="text-right flex-1">
-              <div className="text-base font-bold text-foreground">
+              <button
+                onClick={() => customer && setLocation(`/customers/${customer.id}`)}
+                className="text-base font-bold text-foreground hover:text-primary active:text-primary/80 transition-colors"
+              >
                 {customer?.name ?? "—"}
-              </div>
+              </button>
               <div className="text-sm text-muted-foreground">
                 {customer?.phone}
               </div>
@@ -220,9 +224,12 @@ export default function RentalDetailPage({ params }: Props) {
                   )}
                 </div>
                 <div className="text-right flex-1">
-                  <div className="text-base font-bold text-foreground">
+                  <button
+                    onClick={() => setLocation(`/vehicles/${v.id}`)}
+                    className="text-base font-bold text-foreground hover:text-primary active:text-primary/80 transition-colors"
+                  >
                     {v.make} {v.model}
-                  </div>
+                  </button>
                   <div className="text-sm text-muted-foreground">{v.plate}</div>
                 </div>
               </div>
@@ -349,7 +356,7 @@ export default function RentalDetailPage({ params }: Props) {
                 <input
                   type="number"
                   inputMode="numeric"
-                  placeholder="المبلغ بالليرة اللبنانية"
+                  placeholder="المبلغ بالدولار"
                   value={paymentAmount}
                   onChange={(e) => {
                     setPaymentAmount(e.target.value);
@@ -431,6 +438,18 @@ export default function RentalDetailPage({ params }: Props) {
             </button>
           </div>
         )}
+
+        {/* Edit contract — secondary action for all rentals */}
+        <button
+          onClick={() => {
+            setSuccessMsg("سيتم توفير تعديل العقد في إصدار لاحق.");
+            setTimeout(() => setSuccessMsg(""), 2500);
+          }}
+          className="w-full flex items-center justify-center gap-2 border border-border text-foreground rounded-2xl py-4 text-base font-bold active:scale-[0.98] transition-transform"
+        >
+          <FileEdit className="w-5 h-5" strokeWidth={2} />
+          تعديل العقد
+        </button>
       </div>
     </div>
   );

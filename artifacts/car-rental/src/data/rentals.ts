@@ -7,9 +7,9 @@ export const rentals: Rental[] = [
     customerId: "c1",
     startDate: "2025-01-10T12:00:00Z",
     endDate: "2025-01-15T12:00:00Z",
-    dailyPrices: { "v2": 300000 },
-    payments: [{ id: "p1", amount: 1500000, date: "2025-01-10T12:00:00Z" }],
-    totalAmount: 1500000,
+    dailyPrices: { "v2": 30 },
+    payments: [{ id: "p1", amount: 150, date: "2025-01-10T12:00:00Z" }],
+    totalAmount: 150,
     status: "active"
   },
   {
@@ -18,9 +18,9 @@ export const rentals: Rental[] = [
     customerId: "c3",
     startDate: "2025-01-14T12:00:00Z",
     endDate: "2025-01-16T12:00:00Z",
-    dailyPrices: { "v6": 320000 },
-    payments: [{ id: "p2", amount: 320000, date: "2025-01-14T12:00:00Z" }],
-    totalAmount: 640000,
+    dailyPrices: { "v6": 30 },
+    payments: [{ id: "p2", amount: 30, date: "2025-01-14T12:00:00Z" }],
+    totalAmount: 60,
     status: "active"
   },
   {
@@ -29,9 +29,9 @@ export const rentals: Rental[] = [
     customerId: "c5",
     startDate: "2025-01-15T12:00:00Z",
     endDate: "2025-01-20T12:00:00Z",
-    dailyPrices: { "v3": 400000 },
+    dailyPrices: { "v3": 45 },
     payments: [],
-    totalAmount: 2000000,
+    totalAmount: 225,
     status: "active"
   },
   {
@@ -40,9 +40,9 @@ export const rentals: Rental[] = [
     customerId: "c2",
     startDate: "2024-12-20T12:00:00Z",
     endDate: "2024-12-25T12:00:00Z",
-    dailyPrices: { "v1": 350000 },
-    payments: [{ id: "p3", amount: 1750000, date: "2024-12-20T12:00:00Z" }],
-    totalAmount: 1750000,
+    dailyPrices: { "v1": 40 },
+    payments: [{ id: "p3", amount: 200, date: "2024-12-20T12:00:00Z" }],
+    totalAmount: 200,
     status: "ended",
     returnDate: "2024-12-25T12:00:00Z"
   },
@@ -52,9 +52,9 @@ export const rentals: Rental[] = [
     customerId: "c4",
     startDate: "2024-12-28T12:00:00Z",
     endDate: "2025-01-02T12:00:00Z",
-    dailyPrices: { "v5": 250000 },
-    payments: [{ id: "p4", amount: 1250000, date: "2024-12-28T12:00:00Z" }],
-    totalAmount: 1250000,
+    dailyPrices: { "v5": 130 },
+    payments: [{ id: "p4", amount: 650, date: "2024-12-28T12:00:00Z" }],
+    totalAmount: 650,
     status: "ended",
     returnDate: "2025-01-02T12:00:00Z"
   },
@@ -64,9 +64,9 @@ export const rentals: Rental[] = [
     customerId: "c6",
     startDate: "2025-01-01T12:00:00Z",
     endDate: "2025-01-05T12:00:00Z",
-    dailyPrices: { "v7": 200000 },
-    payments: [{ id: "p5", amount: 1000000, date: "2025-01-01T12:00:00Z" }],
-    totalAmount: 1000000,
+    dailyPrices: { "v7": 35 },
+    payments: [{ id: "p5", amount: 140, date: "2025-01-01T12:00:00Z" }],
+    totalAmount: 140,
     status: "ended",
     returnDate: "2025-01-05T12:00:00Z"
   },
@@ -76,9 +76,9 @@ export const rentals: Rental[] = [
     customerId: "c1",
     startDate: "2025-01-05T12:00:00Z",
     endDate: "2025-01-08T12:00:00Z",
-    dailyPrices: { "v4": 800000 },
-    payments: [{ id: "p6", amount: 2400000, date: "2025-01-05T12:00:00Z" }],
-    totalAmount: 2400000,
+    dailyPrices: { "v4": 90 },
+    payments: [{ id: "p6", amount: 270, date: "2025-01-05T12:00:00Z" }],
+    totalAmount: 270,
     status: "ended",
     returnDate: "2025-01-08T12:00:00Z"
   }

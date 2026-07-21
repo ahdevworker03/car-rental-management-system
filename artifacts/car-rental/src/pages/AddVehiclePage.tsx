@@ -86,7 +86,7 @@ export default function AddVehiclePage() {
             <FormField label="الماركة" required error={errors.make}>
               <input
                 className={inputClass}
-                placeholder="مثال: تويوتا"
+                placeholder="مثال: Toyota"
                 value={form.make}
                 onChange={(e) => set("make", e.target.value)}
               />
@@ -94,7 +94,7 @@ export default function AddVehiclePage() {
             <FormField label="الموديل" required error={errors.model}>
               <input
                 className={inputClass}
-                placeholder="مثال: كورولا"
+                placeholder="مثال: Corolla"
                 value={form.model}
                 onChange={(e) => set("model", e.target.value)}
               />
@@ -125,7 +125,7 @@ export default function AddVehiclePage() {
             <FormField
               label="الأجرة اليومية"
               required
-              hint="بالليرة اللبنانية"
+              hint="بالدولار"
               error={errors.dailyPrice}
             >
               <input

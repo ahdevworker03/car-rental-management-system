@@ -36,7 +36,7 @@ export const maintenance: MaintenanceRecord[] = [
     type: "oil",
     dueDate: "2024-12-15T12:00:00Z",
     completedDate: "2024-12-14T12:00:00Z",
-    cost: 500000,
+    cost: 50,
     status: "completed"
   },
   {
@@ -45,7 +45,7 @@ export const maintenance: MaintenanceRecord[] = [
     type: "registration",
     dueDate: "2024-11-10T12:00:00Z",
     completedDate: "2024-11-09T12:00:00Z",
-    cost: 4000000,
+    cost: 150,
     status: "completed"
   },
   {
@@ -54,7 +54,7 @@ export const maintenance: MaintenanceRecord[] = [
     type: "inspection",
     dueDate: "2025-01-05T12:00:00Z",
     completedDate: "2025-01-04T12:00:00Z",
-    cost: 300000,
+    cost: 40,
     status: "completed"
   }
 ];

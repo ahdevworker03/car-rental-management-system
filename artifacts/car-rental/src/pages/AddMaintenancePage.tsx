@@ -270,7 +270,7 @@ export default function AddMaintenancePage() {
             />
           </FormField>
 
-          <FormField label="التكلفة المتوقعة" hint="اختياري · بالليرة اللبنانية">
+          <FormField label="التكلفة المتوقعة" hint="اختياري · بالدولار">
             <input
               type="number"
               inputMode="numeric"

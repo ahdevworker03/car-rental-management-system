@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useSearchParams } from "wouter";
 import { Plus, Car } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SearchBar } from "@/components/ui/SearchBar";
@@ -24,8 +24,11 @@ const FILTER_OPTIONS = [
 
 export default function VehiclesPage() {
   const [, setLocation] = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<FilterValue>("all");
+
+  const initialFilter = (searchParams.get("filter") as FilterValue) || "all";
+  const [filter, setFilter] = useState<FilterValue>(initialFilter);
 
   // Build vehicleId → renterName map from active rentals (static data, no memo needed)
   const renterMap = useMemo(() => {
@@ -78,7 +81,15 @@ export default function VehiclesPage() {
         <FilterChips
           options={FILTER_OPTIONS}
           value={filter}
-          onChange={(v) => setFilter(v as FilterValue)}
+          onChange={(v) => {
+            const val = v as FilterValue;
+            setFilter(val);
+            if (val === "all") {
+              setSearchParams({}, { replace: true });
+            } else {
+              setSearchParams({ filter: val }, { replace: true });
+            }
+          }}
         />
       </div>
 

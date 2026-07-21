@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
-import { Car, User, ChevronRight, Check, Search } from "lucide-react";
+import { Car, User, ChevronRight, Check, Search, X } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
@@ -99,6 +99,19 @@ export default function NewRentalPage() {
     setShowCustomerPicker(false);
   }
 
+  function removeVehicle() {
+    setSelectedVehicleId("");
+    setShowVehiclePicker(true);
+    setDailyPrice("");
+    setVehicleSearch("");
+  }
+
+  function removeCustomer() {
+    setSelectedCustomerId("");
+    setShowCustomerPicker(true);
+    setCustomerSearch("");
+  }
+
   function validate() {
     const errs: Record<string, string> = {};
     if (!selectedVehicleId) errs.vehicle = "اختر سيارة";
@@ -180,14 +193,26 @@ export default function NewRentalPage() {
             />
             <div className="flex items-center gap-3 flex-1 justify-end">
               {selectedVehicle ? (
-                <div className="text-right">
-                  <div className="text-sm font-bold text-foreground">
-                    {selectedVehicle.make} {selectedVehicle.model}
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeVehicle();
+                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:scale-90 transition-all flex-shrink-0"
+                    aria-label="إلغاء اختيار السيارة"
+                  >
+                    <X className="w-4 h-4" strokeWidth={2} />
+                  </button>
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-foreground">
+                      {selectedVehicle.make} {selectedVehicle.model}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {selectedVehicle.plate} · {formatLBP(selectedVehicle.dailyPrice)}/يوم
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {selectedVehicle.plate} · {formatLBP(selectedVehicle.dailyPrice)}/يوم
-                  </div>
-                </div>
+                </>
               ) : (
                 <span className="text-sm font-semibold text-muted-foreground">
                   اختر السيارة
@@ -291,14 +316,26 @@ export default function NewRentalPage() {
             />
             <div className="flex items-center gap-3 flex-1 justify-end">
               {selectedCustomer ? (
-                <div className="text-right">
-                  <div className="text-sm font-bold text-foreground">
-                    {selectedCustomer.name}
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeCustomer();
+                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:scale-90 transition-all flex-shrink-0"
+                    aria-label="إلغاء اختيار العميل"
+                  >
+                    <X className="w-4 h-4" strokeWidth={2} />
+                  </button>
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-foreground">
+                      {selectedCustomer.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {selectedCustomer.phone}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {selectedCustomer.phone}
-                  </div>
-                </div>
+                </>
               ) : (
                 <span className="text-sm font-semibold text-muted-foreground">
                   اختر العميل
@@ -397,7 +434,7 @@ export default function NewRentalPage() {
           <FormField
             label="الأجرة اليومية"
             required
-            hint="بالليرة اللبنانية"
+            hint="بالدولار"
             error={errors.dailyPrice}
           >
             <input
