@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
+import { cn } from "@/lib/utils";
 
 interface FormState {
   name: string;
@@ -49,37 +50,42 @@ export default function AddCustomerPage() {
     <div className="min-h-full pb-8">
       <PageHeader title="إضافة عميل" showBack />
 
-      <div className="px-4 pt-5 space-y-4">
+      <div className="px-4 pt-5 space-y-5">
 
-        <FormField label="الاسم الكامل" required error={errors.name}>
-          <input
-            className={inputClass}
-            placeholder="مثال: أحمد محمد"
-            value={form.name}
-            onChange={(e) => set("name", e.target.value)}
-            autoComplete="name"
-          />
-        </FormField>
+        {/* ── Customer Info ────────────────────────────────────────────── */}
+        <div className="bg-card rounded-2xl border border-card-border shadow-sm p-4 space-y-4">
+          <h3 className="text-sm font-bold text-foreground">معلومات العميل</h3>
 
-        <FormField label="رقم الهاتف" required error={errors.phone}>
-          <input
-            className={inputClass}
-            placeholder="مثال: 03-123456"
-            inputMode="tel"
-            value={form.phone}
-            onChange={(e) => set("phone", e.target.value)}
-            autoComplete="tel"
-          />
-        </FormField>
+          <FormField label="الاسم الكامل" required error={errors.name}>
+            <input
+              className={errors.name ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
+              placeholder="مثال: أحمد محمد"
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              autoComplete="name"
+            />
+          </FormField>
 
-        <FormField label="الموقع" hint="المنطقة أو المدينة">
-          <input
-            className={inputClass}
-            placeholder="مثال: بيروت"
-            value={form.location}
-            onChange={(e) => set("location", e.target.value)}
-          />
-        </FormField>
+          <FormField label="رقم الهاتف" required error={errors.phone}>
+            <input
+              className={errors.phone ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
+              placeholder="مثال: 03-123456"
+              inputMode="tel"
+              value={form.phone}
+              onChange={(e) => set("phone", e.target.value)}
+              autoComplete="tel"
+            />
+          </FormField>
+
+          <FormField label="الموقع" hint="المنطقة أو المدينة">
+            <input
+              className={inputClass}
+              placeholder="مثال: بيروت"
+              value={form.location}
+              onChange={(e) => set("location", e.target.value)}
+            />
+          </FormField>
+        </div>
 
         <FormField label="ملاحظات">
           <textarea
@@ -94,7 +100,12 @@ export default function AddCustomerPage() {
         <button
           onClick={handleSave}
           disabled={!isFormFilled}
-          className="w-full bg-primary text-primary-foreground rounded-2xl py-4 font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] transition-all mt-2"
+          className={cn(
+            "w-full rounded-2xl py-4 text-base font-bold transition-all shadow-sm",
+            isFormFilled
+              ? "bg-primary text-primary-foreground active:scale-[0.98]"
+              : "bg-muted text-muted-foreground cursor-not-allowed"
+          )}
         >
           حفظ العميل
         </button>

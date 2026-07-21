@@ -27,8 +27,7 @@ export default function VehiclesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
 
-  const initialFilter = (searchParams.get("filter") as FilterValue) || "all";
-  const [filter, setFilter] = useState<FilterValue>(initialFilter);
+  const filter = (searchParams.get("filter") as FilterValue) || "all";
 
   // Build vehicleId → renterName map from active rentals (static data, no memo needed)
   const renterMap = useMemo(() => {
@@ -83,7 +82,6 @@ export default function VehiclesPage() {
           value={filter}
           onChange={(v) => {
             const val = v as FilterValue;
-            setFilter(val);
             if (val === "all") {
               setSearchParams({}, { replace: true });
             } else {

@@ -4,6 +4,7 @@ import { Camera } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
+import { cn } from "@/lib/utils";
 
 import type { VehicleStatus } from "@/data";
 
@@ -79,13 +80,14 @@ export default function AddVehiclePage() {
           </div>
         </div>
 
-        {/* ── Form Fields ──────────────────────────────────────────────── */}
-        <div className="space-y-4">
+        {/* ── Vehicle Info ─────────────────────────────────────────────── */}
+        <div className="bg-card rounded-2xl border border-card-border shadow-sm p-4 space-y-4">
+          <h3 className="text-sm font-bold text-foreground">معلومات السيارة</h3>
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="الماركة" required error={errors.make}>
               <input
-                className={inputClass}
+                className={errors.make ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
                 placeholder="مثال: Toyota"
                 value={form.make}
                 onChange={(e) => set("make", e.target.value)}
@@ -93,7 +95,7 @@ export default function AddVehiclePage() {
             </FormField>
             <FormField label="الموديل" required error={errors.model}>
               <input
-                className={inputClass}
+                className={errors.model ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
                 placeholder="مثال: Corolla"
                 value={form.model}
                 onChange={(e) => set("model", e.target.value)}
@@ -113,13 +115,18 @@ export default function AddVehiclePage() {
             </FormField>
             <FormField label="رقم اللوحة" required error={errors.plate}>
               <input
-                className={inputClass}
+                className={errors.plate ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
                 placeholder="م أ 12345"
                 value={form.plate}
                 onChange={(e) => set("plate", e.target.value)}
               />
             </FormField>
           </div>
+        </div>
+
+        {/* ── Pricing & Status ─────────────────────────────────────────── */}
+        <div className="bg-card rounded-2xl border border-card-border shadow-sm p-4 space-y-4">
+          <h3 className="text-sm font-bold text-foreground">السعر والحالة</h3>
 
           <div className="grid grid-cols-2 gap-3">
             <FormField
@@ -129,7 +136,7 @@ export default function AddVehiclePage() {
               error={errors.dailyPrice}
             >
               <input
-                className={inputClass}
+                className={errors.dailyPrice ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
                 placeholder="350,000"
                 inputMode="numeric"
                 value={form.dailyPrice}
@@ -158,24 +165,29 @@ export default function AddVehiclePage() {
               <option value="maintenance">صيانة</option>
             </select>
           </FormField>
-
-          <FormField label="ملاحظات">
-            <textarea
-              className={`${inputClass} min-h-[96px] resize-none`}
-              placeholder="أي معلومات إضافية عن السيارة..."
-              value={form.notes}
-              onChange={(e) => set("notes", e.target.value)}
-              rows={3}
-            />
-          </FormField>
-
         </div>
+
+        {/* ── Notes ────────────────────────────────────────────────────── */}
+        <FormField label="ملاحظات">
+          <textarea
+            className={`${inputClass} min-h-[96px] resize-none`}
+            placeholder="أي معلومات إضافية عن السيارة..."
+            value={form.notes}
+            onChange={(e) => set("notes", e.target.value)}
+            rows={3}
+          />
+        </FormField>
 
         {/* ── Save Button ──────────────────────────────────────────────── */}
         <button
           onClick={handleSave}
           disabled={!isFormFilled}
-          className="w-full bg-primary text-primary-foreground rounded-2xl py-4 font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] transition-all"
+          className={cn(
+            "w-full rounded-2xl py-4 text-base font-bold transition-all shadow-sm",
+            isFormFilled
+              ? "bg-primary text-primary-foreground active:scale-[0.98]"
+              : "bg-muted text-muted-foreground cursor-not-allowed"
+          )}
         >
           حفظ السيارة
         </button>

@@ -44,6 +44,13 @@ function dueLabelFor(days: number): { text: string; urgent: boolean } {
   return { text: `بعد ${days} أيام`, urgent: false };
 }
 
+function relativeTimeLabel(pastDays: number): string {
+  if (pastDays === 0) return "اليوم";
+  if (pastDays === 1) return "أمس";
+  if (pastDays === 2) return "منذ يومين";
+  return `منذ ${pastDays} أيام`;
+}
+
 // ─── Derived data ──────────────────────────────────────────────────────────────
 const availableCount = vehicles.filter((v) => v.status === "available").length;
 const rentedCount = vehicles.filter((v) => v.status === "rented").length;
@@ -190,23 +197,29 @@ function ActivityRow({ rentalId }: { rentalId: string }) {
   const customer = getCustomerById(rental.customerId);
   if (!vehicle || !customer) return null;
 
+  const returnDays = Math.abs(daysFromToday(rental.returnDate!));
+  const relativeTime = relativeTimeLabel(returnDays);
+
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-border last:border-0">
-      <div className="w-9 h-9 rounded-full bg-[hsl(var(--status-available-bg))] flex items-center justify-center flex-shrink-0">
+    <div className="flex items-start gap-3 py-3 border-b border-border last:border-0">
+      <div className="w-9 h-9 rounded-full bg-[hsl(var(--status-available-bg))] flex items-center justify-center flex-shrink-0 mt-0.5">
         <CheckCircle2
           className="w-5 h-5 text-[hsl(var(--status-available))]"
           strokeWidth={1.75}
         />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-semibold text-foreground truncate">
+        <div className="text-sm font-bold text-foreground">
+          تم إنهاء عقد
+        </div>
+        <div className="text-sm text-muted-foreground mt-0.5">
           {vehicle.make} {vehicle.model}
         </div>
-        <div className="text-xs text-muted-foreground truncate">
-          {customer.name} · {formatDateShort(rental.returnDate!)}
+        <div className="text-xs text-muted-foreground mt-0.5">
+          العميل: {customer.name} · {relativeTime}
         </div>
       </div>
-      <div className="text-sm font-bold text-foreground flex-shrink-0">
+      <div className="text-sm font-bold text-foreground flex-shrink-0 mt-0.5 whitespace-nowrap">
         {formatLBP(rental.totalAmount)}
       </div>
     </div>
@@ -318,7 +331,7 @@ export default function DashboardPage() {
                   >
                     <div
                       className={cn(
-                        "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
+                        "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-1",
                         due.urgent
                           ? "bg-[hsl(var(--status-danger-bg))]"
                           : "bg-[hsl(var(--status-rented-bg))]"
@@ -335,23 +348,14 @@ export default function DashboardPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span className="text-sm font-bold text-foreground">
-                          {vehicle.make} {vehicle.model}
-                        </span>
-                        <span
-                          className={cn(
-                            "text-xs font-semibold px-2 py-0.5 rounded-full",
-                            due.urgent
-                              ? "bg-[hsl(var(--status-danger-bg))] text-[hsl(var(--status-danger))]"
-                              : "bg-[hsl(var(--status-rented-bg))] text-[hsl(var(--status-rented))]"
-                          )}
-                        >
-                          {due.text}
-                        </span>
+                      <div className="text-sm font-bold text-foreground">
+                        إعادة السيارة {due.text}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {customer.name} · {vehicle.plate}
+                      <div className="text-sm text-muted-foreground mt-0.5">
+                        {vehicle.make} {vehicle.model}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        العميل: {customer.name}
                       </div>
                     </div>
                   </TaskCard>
@@ -364,6 +368,7 @@ export default function DashboardPage() {
                 if (!vehicle) return null;
                 const days = daysFromToday(item.dueDate);
                 const due = dueLabelFor(days);
+                const typeLabel = MAINTENANCE_TYPES[item.type as MaintenanceType]?.label ?? item.type;
 
                 return (
                   <TaskCard
@@ -371,23 +376,20 @@ export default function DashboardPage() {
                     urgent
                     onClick={() => setLocation("/maintenance")}
                   >
-                    <div className="w-9 h-9 rounded-full bg-[hsl(var(--status-danger-bg))] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-9 h-9 rounded-full bg-[hsl(var(--status-danger-bg))] flex items-center justify-center flex-shrink-0 mt-1">
                       <AlertTriangle
                         className="w-5 h-5 text-[hsl(var(--status-danger))]"
                         strokeWidth={1.75}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span className="text-sm font-bold text-foreground">
-                          {MAINTENANCE_TYPES[item.type as MaintenanceType]?.label ?? item.type}
-                        </span>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[hsl(var(--status-danger-bg))] text-[hsl(var(--status-danger))]">
-                          {due.text}
-                        </span>
+                      <div className="text-sm font-bold text-foreground">
+                        {item.type === "registration"
+                          ? `تسجيل السيارة ينتهي (${due.text})`
+                          : `موعد ${typeLabel} (${due.text})`}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {vehicle.make} {vehicle.model} · {vehicle.plate}
+                      <div className="text-sm text-muted-foreground mt-0.5">
+                        {vehicle.make} {vehicle.model}
                       </div>
                     </div>
                   </TaskCard>
@@ -415,29 +417,41 @@ export default function DashboardPage() {
                 if (!vehicle) return null;
                 const days = daysFromToday(item.dueDate);
                 const due = dueLabelFor(days);
+                const typeLabel = MAINTENANCE_TYPES[item.type as MaintenanceType]?.label ?? item.type;
 
                 return (
                   <TaskCard
                     key={item.id}
+                    urgent={due.urgent}
                     onClick={() => setLocation("/maintenance")}
                   >
-                    <div className="w-9 h-9 rounded-full bg-[hsl(var(--status-maintenance-bg))] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className={cn(
+                      "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-1",
+                      due.urgent
+                        ? "bg-[hsl(var(--status-danger-bg))]"
+                        : "bg-[hsl(var(--status-maintenance-bg))]"
+                    )}>
                       <Wrench
-                        className="w-5 h-5 text-[hsl(var(--status-maintenance))]"
+                        className={cn(
+                          "w-5 h-5",
+                          due.urgent
+                            ? "text-[hsl(var(--status-danger))]"
+                            : "text-[hsl(var(--status-maintenance))]"
+                        )}
                         strokeWidth={1.75}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span className="text-sm font-bold text-foreground">
-                          {MAINTENANCE_TYPES[item.type as MaintenanceType]?.label ?? item.type}
-                        </span>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[hsl(var(--status-maintenance-bg))] text-[hsl(var(--status-maintenance))]">
-                          {due.text}
-                        </span>
+                      <div className="text-sm font-bold text-foreground">
+                        {item.type === "registration"
+                          ? `تسجيل السيارة ينتهي ${due.text}`
+                          : `موعد ${typeLabel} ${due.text}`}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {vehicle.make} {vehicle.model} · {formatDateShort(item.dueDate)}
+                      <div className="text-sm text-muted-foreground mt-0.5">
+                        {vehicle.make} {vehicle.model}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {formatDateShort(item.dueDate)}
                       </div>
                     </div>
                   </TaskCard>
@@ -448,24 +462,31 @@ export default function DashboardPage() {
         )}
 
         {/* ── Recent Activity ───────────────────────────────────────────── */}
-        {recentActivity.length > 0 && (
-          <section>
-            <SectionHeader
-              title="النشاط الأخير"
-              action={
-                <button onClick={() => setLocation("/rentals")} className="flex items-center gap-1">
-                  عرض الكل
-                  <ChevronLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
-                </button>
-              }
+        <section>
+          <SectionHeader
+            title="النشاط الأخير"
+            action={
+              <button onClick={() => setLocation("/rentals")} className="flex items-center gap-1">
+                عرض الكل
+                <ChevronLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </button>
+            }
+          />
+          {recentActivity.length === 0 ? (
+            <EmptyState
+              icon={Clock}
+              title="لا يوجد نشاط حديث"
+              description="سيظهر هنا النشاط عند بدء التعامل"
+              className="py-8"
             />
+          ) : (
             <div className="bg-card rounded-xl border border-card-border shadow-sm px-4">
               {recentActivity.map((rental) => (
                 <ActivityRow key={rental.id} rentalId={rental.id} />
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
       </div>
     </div>

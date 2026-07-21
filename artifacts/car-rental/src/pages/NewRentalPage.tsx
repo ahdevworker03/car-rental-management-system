@@ -5,6 +5,7 @@ import { Car, User, ChevronRight, Check, Search, X } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
 import { formatLBP } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 import { rentals, vehicles, customers } from "@/data";
 import type { Rental } from "@/data/types";
@@ -83,6 +84,34 @@ export default function NewRentalPage() {
   const paid = parseInt(paidAmount.replace(/,/g, ""), 10) || 0;
   const remaining = Math.max(0, total - paid);
 
+  const canSave = !!selectedVehicleId && !!selectedCustomerId && !!startDate && !!endDate && !!dailyPrice && price > 0;
+
+  const stepVehicleDone = !!selectedVehicleId;
+  const stepCustomerDone = !!selectedCustomerId;
+  const currentStepIdx = !stepVehicleDone ? 0 : !stepCustomerDone ? 1 : 2;
+
+  function clearError(key: string) {
+    if (errors[key]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    }
+  }
+
+  const STEPS = [
+    { key: "vehicle", label: "السيارة" },
+    { key: "customer", label: "العميل" },
+    { key: "details", label: "التفاصيل" },
+  ];
+
+  function stepState(idx: number): "done" | "current" | "future" {
+    if (idx < currentStepIdx) return "done";
+    if (idx === currentStepIdx) return "current";
+    return "future";
+  }
+
   // ── Handlers ──────────────────────────────────────────────────────────────
   function selectVehicle(id: string) {
     const v = vehicles.find((v) => v.id === id);
@@ -157,12 +186,16 @@ export default function NewRentalPage() {
   // ── Success screen ────────────────────────────────────────────────────────
   if (saved) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-background px-6 gap-4">
+      <div className="flex-1 flex flex-col items-center justify-center bg-background px-6 gap-3">
         <div className="w-20 h-20 rounded-full bg-[hsl(var(--status-available-bg))] flex items-center justify-center">
           <Check className="w-10 h-10 text-[hsl(var(--status-available))]" strokeWidth={2.5} />
         </div>
-        <h2 className="text-xl font-bold text-foreground">تم إنشاء الإيجار</h2>
-        <p className="text-sm text-muted-foreground text-center">
+        <h2 className="text-xl font-bold text-foreground">تم إنشاء عقد الإيجار</h2>
+        <div className="text-center text-sm text-muted-foreground space-y-1">
+          <p>{selectedVehicle?.make} {selectedVehicle?.model}</p>
+          <p>العميل: {selectedCustomer?.name}</p>
+        </div>
+        <p className="text-xs text-muted-foreground pt-2">
           جاري العودة إلى قائمة الإيجارات...
         </p>
       </div>
@@ -177,7 +210,51 @@ export default function NewRentalPage() {
         onBack={() => setLocation("/rentals")}
       />
 
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-8 space-y-4">
+      {/* ── Step Progress ───────────────────────────────────────────────── */}
+      <div className="flex items-start justify-center gap-0 px-6 pt-3 pb-1">
+        {STEPS.map((step, idx) => {
+          const state = stepState(idx);
+          const isLast = idx === STEPS.length - 1;
+          return (
+            <div key={step.key} className="flex items-center flex-1">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={cn(
+                    "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors",
+                    state === "done" && "bg-[hsl(var(--status-available))] text-white",
+                    state === "current" && "bg-primary text-primary-foreground ring-2 ring-primary/20",
+                    state === "future" && "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {state === "done" ? (
+                    <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                  ) : (
+                    idx + 1
+                  )}
+                </div>
+                <span
+                  className={cn(
+                    "text-[10px] font-medium",
+                    state === "future" ? "text-muted-foreground" : "text-foreground"
+                  )}
+                >
+                  {step.label}
+                </span>
+              </div>
+              {!isLast && (
+                <div
+                  className={cn(
+                    "flex-1 h-[2px] mx-2 mb-5 rounded-full",
+                    state === "done" ? "bg-[hsl(var(--status-available))]" : "bg-muted"
+                  )}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-4 pt-2 pb-8 space-y-4">
 
         {/* ── 1. Vehicle picker ─────────────────────────────────────────── */}
         <div className="bg-card rounded-2xl border border-card-border shadow-sm overflow-hidden">
@@ -208,8 +285,16 @@ export default function NewRentalPage() {
                     <div className="text-sm font-bold text-foreground">
                       {selectedVehicle.make} {selectedVehicle.model}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {selectedVehicle.plate} · {formatLBP(selectedVehicle.dailyPrice)}/يوم
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {selectedVehicle.plate}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatLBP(selectedVehicle.dailyPrice)}/يوم
+                      </span>
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))]">
+                        متاحة
+                      </span>
                     </div>
                   </div>
                 </>
@@ -331,8 +416,11 @@ export default function NewRentalPage() {
                     <div className="text-sm font-bold text-foreground">
                       {selectedCustomer.name}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {selectedCustomer.phone}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {selectedCustomer.location}
                     </div>
                   </div>
                 </>
@@ -415,8 +503,8 @@ export default function NewRentalPage() {
               <input
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className={inputClass}
+                onChange={(e) => { setStartDate(e.target.value); clearError("startDate"); }}
+                className={errors.startDate ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
               />
             </FormField>
 
@@ -425,8 +513,8 @@ export default function NewRentalPage() {
                 type="date"
                 value={endDate}
                 min={startDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className={inputClass}
+                onChange={(e) => { setEndDate(e.target.value); clearError("endDate"); }}
+                className={errors.endDate ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
               />
             </FormField>
           </div>
@@ -442,19 +530,10 @@ export default function NewRentalPage() {
               inputMode="numeric"
               placeholder="مثال: 300000"
               value={dailyPrice}
-              onChange={(e) => setDailyPrice(e.target.value)}
-              className={inputClass}
+              onChange={(e) => { setDailyPrice(e.target.value); clearError("dailyPrice"); }}
+              className={errors.dailyPrice ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
             />
           </FormField>
-
-          {days > 0 && price > 0 && (
-            <div className="bg-muted/60 rounded-xl p-3 space-y-1.5">
-              <div className="flex justify-between text-sm">
-                <span className="font-semibold text-foreground">{formatLBP(total)}</span>
-                <span className="text-muted-foreground">{days} يوم × {formatLBP(price)}</span>
-              </div>
-            </div>
-          )}
 
           <FormField label="الدفعة الأولى" hint="اختياري" error={errors.paidAmount}>
             <input
@@ -462,23 +541,61 @@ export default function NewRentalPage() {
               inputMode="numeric"
               placeholder="0"
               value={paidAmount}
-              onChange={(e) => setPaidAmount(e.target.value)}
-              className={inputClass}
+              onChange={(e) => { setPaidAmount(e.target.value); clearError("paidAmount"); }}
+              className={errors.paidAmount ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
             />
           </FormField>
 
-          {total > 0 && (
-            <div className="flex justify-between items-center py-2 border-t border-border">
-              <span
-                className={`text-sm font-bold ${
-                  remaining > 0
-                    ? "text-[hsl(var(--status-danger))]"
-                    : "text-[hsl(var(--status-available))]"
-                }`}
-              >
-                {remaining > 0 ? formatLBP(remaining) : "مدفوع بالكامل"}
-              </span>
-              <span className="text-sm text-muted-foreground">الرصيد المتبقي</span>
+          {/* ── Rental Summary ──────────────────────────────────────────── */}
+          {days > 0 && price > 0 && selectedVehicle && selectedCustomer && (
+            <div className="border-t border-border pt-4 mt-2 space-y-3">
+              <h3 className="text-sm font-bold text-foreground">ملخص الإيجار</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">السيارة</span>
+                  <span className="font-semibold text-foreground">{selectedVehicle.make} {selectedVehicle.model}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">العميل</span>
+                  <span className="font-semibold text-foreground">{selectedCustomer.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">المدة</span>
+                  <span className="font-semibold text-foreground">{startDate} → {endDate}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">الأجرة اليومية</span>
+                  <span className="font-semibold text-foreground">{formatLBP(price)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">عدد الأيام</span>
+                  <span className="font-semibold text-foreground">{days}</span>
+                </div>
+                <div className="border-t border-border pt-2 mt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">الإجمالي</span>
+                    <span className="text-lg font-bold text-foreground">{formatLBP(total)}</span>
+                  </div>
+                </div>
+                {paid > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">المدفوع</span>
+                    <span className="font-semibold text-foreground">{formatLBP(paid)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">الرصيد المتبقي</span>
+                  <span
+                    className={`font-bold ${
+                      remaining > 0
+                        ? "text-[hsl(var(--status-danger))]"
+                        : "text-[hsl(var(--status-available))]"
+                    }`}
+                  >
+                    {remaining > 0 ? formatLBP(remaining) : "مدفوع بالكامل"}
+                  </span>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -497,7 +614,13 @@ export default function NewRentalPage() {
         {/* ── Save button ───────────────────────────────────────────────── */}
         <button
           onClick={handleSave}
-          className="w-full bg-primary text-primary-foreground rounded-2xl py-4 text-base font-bold active:scale-[0.98] transition-transform shadow-sm"
+          disabled={!canSave}
+          className={cn(
+            "w-full rounded-2xl py-4 text-base font-bold transition-all shadow-sm",
+            canSave
+              ? "bg-primary text-primary-foreground active:scale-[0.98]"
+              : "bg-muted text-muted-foreground cursor-not-allowed"
+          )}
         >
           حفظ الإيجار
         </button>

@@ -14,6 +14,7 @@ import {
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
+import { cn } from "@/lib/utils";
 
 import { maintenance, vehicles } from "@/data";
 import type { MaintenanceRecord, MaintenanceType } from "@/data/types";
@@ -55,6 +56,18 @@ export default function AddMaintenancePage() {
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId);
+
+  const canSave = !!selectedVehicleId && !!type;
+
+  function clearError(key: string) {
+    if (errors[key]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    }
+  }
 
   const filteredVehicles = useMemo(() => {
     const q = vehicleSearch.trim().toLowerCase();
@@ -106,12 +119,18 @@ export default function AddMaintenancePage() {
   // ── Render ────────────────────────────────────────────────────────────────
   if (saved) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-background px-6 gap-4">
+      <div className="flex-1 flex flex-col items-center justify-center bg-background px-6 gap-3">
         <div className="w-20 h-20 rounded-full bg-[hsl(var(--status-available-bg))] flex items-center justify-center">
           <Check className="w-10 h-10 text-[hsl(var(--status-available))]" strokeWidth={2.5} />
         </div>
         <h2 className="text-xl font-bold text-foreground">تم تسجيل الصيانة</h2>
-        <p className="text-sm text-muted-foreground text-center">
+        {selectedVehicle && (
+          <div className="text-center text-sm text-muted-foreground space-y-1">
+            <p>{selectedVehicle.make} {selectedVehicle.model}</p>
+            <p>{selectedVehicle.plate}</p>
+          </div>
+        )}
+        <p className="text-xs text-muted-foreground pt-2">
           جاري العودة إلى قائمة الصيانة...
         </p>
       </div>
@@ -190,6 +209,7 @@ export default function AddMaintenancePage() {
                     onClick={() => {
                       setSelectedVehicleId(v.id);
                       setShowVehiclePicker(false);
+                      clearError("vehicle");
                     }}
                     className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${
                       selectedVehicleId === v.id
@@ -239,7 +259,7 @@ export default function AddMaintenancePage() {
               return (
                 <button
                   key={opt.value}
-                  onClick={() => setType(opt.value)}
+                  onClick={() => { setType(opt.value); clearError("type"); }}
                   className={`flex items-center justify-end gap-2 p-3 rounded-xl border transition-all ${
                     isSelected
                       ? "border-primary bg-primary/5 text-primary"
@@ -265,8 +285,8 @@ export default function AddMaintenancePage() {
             <input
               type="date"
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className={inputClass}
+              onChange={(e) => { setDueDate(e.target.value); clearError("dueDate"); }}
+              className={errors.dueDate ? `${inputClass} border-destructive focus:ring-destructive/30` : inputClass}
             />
           </FormField>
 
@@ -296,7 +316,13 @@ export default function AddMaintenancePage() {
         {/* ── Save ──────────────────────────────────────────────────── */}
         <button
           onClick={handleSave}
-          className="w-full bg-primary text-primary-foreground rounded-2xl py-4 text-base font-bold active:scale-[0.98] transition-transform shadow-sm"
+          disabled={!canSave}
+          className={cn(
+            "w-full rounded-2xl py-4 text-base font-bold transition-all shadow-sm",
+            canSave
+              ? "bg-primary text-primary-foreground active:scale-[0.98]"
+              : "bg-muted text-muted-foreground cursor-not-allowed"
+          )}
         >
           حفظ السجل
         </button>
