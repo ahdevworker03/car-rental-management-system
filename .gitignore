@@ -48,5 +48,4 @@ Thumbs.db
 attached_assets/
 
 # documentation
-Docs/
-.opencode
+docs/
