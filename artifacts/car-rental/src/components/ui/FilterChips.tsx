@@ -14,10 +14,12 @@ interface FilterChipsProps {
 
 export function FilterChips({ options, value, onChange, className }: FilterChipsProps) {
   return (
-    <div className={cn("flex gap-2 overflow-x-auto pb-1 scrollbar-hide", className)}>
+    <div role="tablist" className={cn("flex gap-2 overflow-x-auto pb-1 scrollbar-hide", className)}>
       {options.map((opt) => (
         <button
           key={opt.value}
+          role="tab"
+          aria-selected={value === opt.value}
           onClick={() => onChange(opt.value)}
           className={cn(
             "flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all active:scale-95",

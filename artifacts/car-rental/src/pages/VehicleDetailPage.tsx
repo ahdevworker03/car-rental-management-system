@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { InfoRow } from "@/components/ui/InfoRow";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { MAINTENANCE_TYPES } from "@/components/ui/MaintenanceCard";
-import { formatLBP, formatDateAr } from "@/lib/format";
+import { formatCurrency, formatDateAr } from "@/lib/format";
 import {
   getVehicleById,
   getCustomerById,
@@ -94,7 +94,7 @@ export default function VehicleDetailPage({
             label="المسافة المقطوعة"
             value={`${new Intl.NumberFormat("en-US").format(vehicle.mileage)} كم`}
           />
-          <InfoRow label="الأجرة اليومية" value={formatLBP(vehicle.dailyPrice)} />
+          <InfoRow label="الأجرة اليومية" value={formatCurrency(vehicle.dailyPrice)} />
           {vehicle.notes && (
             <InfoRow label="ملاحظات" value={vehicle.notes} />
           )}
@@ -126,10 +126,10 @@ export default function VehicleDetailPage({
                       : "text-sm font-bold text-[hsl(var(--status-available))]"
                   }
                 >
-                  {remaining > 0 ? `${formatLBP(remaining)} متبقي` : "مدفوع بالكامل"}
+                  {remaining > 0 ? `${formatCurrency(remaining)} متبقي` : "مدفوع بالكامل"}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  إجمالي {formatLBP(activeRental.totalAmount)}
+                  إجمالي {formatCurrency(activeRental.totalAmount)}
                 </span>
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function VehicleDetailPage({
                 >
                   <div className="text-left">
                     <div className="text-sm font-semibold text-foreground">
-                      {formatLBP(rental.totalAmount)}
+                      {formatCurrency(rental.totalAmount)}
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
                       {formatDateAr(rental.endDate)}
@@ -241,7 +241,7 @@ export default function VehicleDetailPage({
                   <StatusBadge status={record.status} />
                   {record.cost && (
                     <div className="text-xs text-muted-foreground mt-1">
-                      {formatLBP(record.cost)}
+                      {formatCurrency(record.cost)}
                     </div>
                   )}
                 </div>

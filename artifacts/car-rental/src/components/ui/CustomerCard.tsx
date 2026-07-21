@@ -1,6 +1,6 @@
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatLBP, formatInitials } from "@/lib/format";
+import { formatCurrency, formatInitials } from "@/lib/format";
 import type { Customer } from "@/data/types";
 
 interface CustomerCardProps {
@@ -59,7 +59,7 @@ export function CustomerCard({
             )}
             {remainingBalance > 0 ? (
               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[hsl(var(--status-danger-bg))] text-[hsl(var(--status-danger))]">
-                {formatLBP(remainingBalance)} متبقي
+                {formatCurrency(remainingBalance)} متبقي
               </span>
             ) : activeRentalCount === 0 ? (
               <span className="text-xs text-muted-foreground">لا توجد إيجارات حالية</span>

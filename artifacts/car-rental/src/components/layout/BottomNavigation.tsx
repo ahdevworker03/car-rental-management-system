@@ -19,7 +19,12 @@ function NavTab({ tab }: { tab: (typeof TABS)[number] }) {
   const Icon = tab.icon;
 
   return (
-    <Link href={tab.route} className="flex-1">
+    <Link
+      href={tab.route}
+      role="tab"
+      aria-selected={isActive}
+      className="flex-1"
+    >
       <div className="flex flex-col items-center justify-center py-2 min-h-[56px] gap-1">
         <Icon
           className={cn("w-6 h-6", isActive ? "text-primary" : "text-muted-foreground")}
@@ -42,7 +47,7 @@ function NavTab({ tab }: { tab: (typeof TABS)[number] }) {
 export function BottomNavigation() {
   return (
     <div className="fixed bottom-0 left-0 right-0 w-full bg-background border-t border-border z-50">
-      <div className="max-w-[480px] mx-auto flex justify-between items-center px-2">
+      <div role="tablist" className="max-w-[480px] mx-auto flex justify-between items-center px-2">
         {TABS.map((tab) => (
           <NavTab key={tab.route} tab={tab} />
         ))}

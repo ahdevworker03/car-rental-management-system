@@ -4,7 +4,7 @@ import { Car, User, ChevronRight, Check, Search, X } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
-import { formatLBP } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { rentals, vehicles, customers } from "@/data";
@@ -290,7 +290,7 @@ export default function NewRentalPage() {
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs font-semibold text-foreground">
-                        {formatLBP(selectedVehicle.dailyPrice)}/يوم
+                        {formatCurrency(selectedVehicle.dailyPrice)}/يوم
                       </span>
                       <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))]">
                         متاحة
@@ -355,7 +355,7 @@ export default function NewRentalPage() {
                         {v.make} {v.model}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {v.plate} · {formatLBP(v.dailyPrice)}/يوم
+                        {v.plate} · {formatCurrency(v.dailyPrice)}/يوم
                       </div>
                     </div>
                     <div className="w-12 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
@@ -565,7 +565,7 @@ export default function NewRentalPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">الأجرة اليومية</span>
-                  <span className="font-semibold text-foreground">{formatLBP(price)}</span>
+                  <span className="font-semibold text-foreground">{formatCurrency(price)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">عدد الأيام</span>
@@ -574,13 +574,13 @@ export default function NewRentalPage() {
                 <div className="border-t border-border pt-2 mt-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">الإجمالي</span>
-                    <span className="text-lg font-bold text-foreground">{formatLBP(total)}</span>
+                    <span className="text-lg font-bold text-foreground">{formatCurrency(total)}</span>
                   </div>
                 </div>
                 {paid > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">المدفوع</span>
-                    <span className="font-semibold text-foreground">{formatLBP(paid)}</span>
+                    <span className="font-semibold text-foreground">{formatCurrency(paid)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
@@ -592,7 +592,7 @@ export default function NewRentalPage() {
                         : "text-[hsl(var(--status-available))]"
                     }`}
                   >
-                    {remaining > 0 ? formatLBP(remaining) : "مدفوع بالكامل"}
+                    {remaining > 0 ? formatCurrency(remaining) : "مدفوع بالكامل"}
                   </span>
                 </div>
               </div>

@@ -13,7 +13,7 @@ import {
   StickyNote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatLBP, formatDateAr } from "@/lib/format";
+import { formatCurrency, formatDateAr } from "@/lib/format";
 import type { MaintenanceRecord, MaintenanceType } from "@/data/types";
 
 // ── Type config ─────────────────────────────────────────────────────────────
@@ -109,6 +109,8 @@ export function MaintenanceCard({
       {/* ── Collapsed row ─────────────────────────────────────────── */}
       <button
         onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={`maintenance-detail-${record.id}`}
         className="w-full flex items-center gap-3 p-4 text-right"
       >
         {/* Type icon — RIGHT in RTL */}
@@ -169,7 +171,11 @@ export function MaintenanceCard({
 
       {/* ── Expanded detail ───────────────────────────────────────── */}
       {isExpanded && (
-        <div className="border-t border-border px-4 pt-3 pb-4 space-y-3">
+        <div
+          id={`maintenance-detail-${record.id}`}
+          role="region"
+          className="border-t border-border px-4 pt-3 pb-4 space-y-3"
+        >
           {/* Vehicle */}
           <div className="flex items-center justify-between py-2 border-b border-border">
             <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -203,7 +209,7 @@ export function MaintenanceCard({
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
                 <Banknote className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
-                {formatLBP(record.cost)}
+                {formatCurrency(record.cost)}
               </span>
               <span className="text-sm text-muted-foreground">التكلفة</span>
             </div>

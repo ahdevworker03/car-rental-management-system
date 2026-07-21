@@ -19,7 +19,7 @@ const LEBANESE_MONTHS = [
 ];
 
 /** Format a number as dollars: $1,500,000 */
-export function formatLBP(n: number): string {
+export function formatCurrency(n: number): string {
   return "$" + new Intl.NumberFormat("en-US").format(n);
 }
 

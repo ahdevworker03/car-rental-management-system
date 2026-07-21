@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { InfoRow } from "@/components/ui/InfoRow";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { formatLBP, formatDateAr, formatInitials } from "@/lib/format";
+import { formatCurrency, formatDateAr, formatInitials } from "@/lib/format";
 import {
   getCustomerById,
   getRentalsForCustomer,
@@ -117,7 +117,7 @@ export default function CustomerDetailPage({
               label="إجمالي المدفوع"
               value={
                 <span className="text-[hsl(var(--status-available))] font-bold">
-                  {formatLBP(totalPaidAllTime)}
+                  {formatCurrency(totalPaidAllTime)}
                 </span>
               }
             />
@@ -126,7 +126,7 @@ export default function CustomerDetailPage({
               value={
                 totalRemainingActive > 0 ? (
                   <span className="text-[hsl(var(--status-danger))] font-bold">
-                    {formatLBP(totalRemainingActive)}
+                    {formatCurrency(totalRemainingActive)}
                   </span>
                 ) : (
                   <span className="text-muted-foreground">لا يوجد</span>
@@ -190,11 +190,11 @@ export default function CustomerDetailPage({
                         }
                       >
                         {remaining > 0
-                          ? `${formatLBP(remaining)} متبقي`
+                          ? `${formatCurrency(remaining)} متبقي`
                           : "مدفوع بالكامل"}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        إجمالي {formatLBP(rental.totalAmount)}
+                        إجمالي {formatCurrency(rental.totalAmount)}
                       </span>
                     </div>
                   </div>
@@ -224,7 +224,7 @@ export default function CustomerDetailPage({
                 >
                   <div className="text-left">
                     <div className="text-sm font-semibold text-foreground">
-                      {formatLBP(rental.totalAmount)}
+                      {formatCurrency(rental.totalAmount)}
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
                       {rental.returnDate ? formatDateAr(rental.returnDate) : "—"}

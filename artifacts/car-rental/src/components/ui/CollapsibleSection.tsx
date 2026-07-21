@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useId } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +18,8 @@ export function CollapsibleSection({
   className,
 }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const id = useId();
+  const contentId = `collapsible-section-${id}`;
 
   return (
     <div
@@ -28,6 +30,8 @@ export function CollapsibleSection({
     >
       <button
         onClick={() => setIsOpen((prev) => !prev)}
+        aria-expanded={isOpen}
+        aria-controls={contentId}
         className="w-full flex items-center justify-between p-4"
       >
         {/* In RTL: title is RIGHT (first), chevron is LEFT (last) */}
@@ -47,7 +51,9 @@ export function CollapsibleSection({
         <span className="text-sm font-bold text-foreground">{title}</span>
       </button>
 
-      {isOpen && <div className="border-t border-border">{children}</div>}
+      <div id={contentId} role="region" className={cn(!isOpen && "hidden")}>
+        {isOpen && <div className="border-t border-border">{children}</div>}
+      </div>
     </div>
   );
 }

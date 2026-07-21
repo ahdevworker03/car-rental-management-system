@@ -15,7 +15,7 @@ import { StatCard } from "@/components/ui/StatCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { MAINTENANCE_TYPES } from "@/components/ui/MaintenanceCard";
-import { formatLBP, formatDateShort } from "@/lib/format";
+import { formatCurrency, formatDateShort } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   vehicles,
@@ -171,7 +171,7 @@ function RevenueCard({ onClick }: { onClick: () => void }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <div className="text-2xl font-bold text-primary-foreground leading-tight">
-            {formatLBP(monthlyRevenue)}
+            {formatCurrency(monthlyRevenue)}
           </div>
           <div className="text-xs text-primary-foreground/70 mt-1 font-medium">
             إجمالي الدخل
@@ -179,7 +179,7 @@ function RevenueCard({ onClick }: { onClick: () => void }) {
         </div>
         <div className="border-r border-primary-foreground/20 pr-4">
           <div className="text-2xl font-bold text-primary-foreground/90 leading-tight">
-            {formatLBP(pendingBalance)}
+            {formatCurrency(pendingBalance)}
           </div>
           <div className="text-xs text-primary-foreground/70 mt-1 font-medium">
             رصيد متبقي
@@ -220,7 +220,7 @@ function ActivityRow({ rentalId }: { rentalId: string }) {
         </div>
       </div>
       <div className="text-sm font-bold text-foreground flex-shrink-0 mt-0.5 whitespace-nowrap">
-        {formatLBP(rental.totalAmount)}
+        {formatCurrency(rental.totalAmount)}
       </div>
     </div>
   );

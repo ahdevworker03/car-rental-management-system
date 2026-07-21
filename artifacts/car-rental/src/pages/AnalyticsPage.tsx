@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
-import { formatLBP } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 
 import { vehicles, rentals, customers, getVehicleById, getCustomerById } from "@/data";
 
@@ -101,7 +101,7 @@ export default function AnalyticsPage() {
           {/* Main revenue card */}
           <div className="rounded-2xl bg-primary p-5 text-white mb-3">
             <p className="text-sm font-medium opacity-80 mb-1">إيرادات كانون الثاني 2025</p>
-            <p className="text-3xl font-bold tracking-tight">{formatLBP(thisMonthRevenue)}</p>
+            <p className="text-3xl font-bold tracking-tight">{formatCurrency(thisMonthRevenue)}</p>
 
             {revenueChange !== null && (
               <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-white/20">
@@ -110,7 +110,7 @@ export default function AnalyticsPage() {
                   : <TrendingDown size={15} className="shrink-0 opacity-90" />}
                 <span className="text-sm opacity-90">
                   {revenueUp ? "+" : ""}{revenueChange}٪ مقارنةً بالشهر الماضي
-                  {" "}({formatLBP(prevMonthRevenue)})
+                  {" "}({formatCurrency(prevMonthRevenue)})
                 </span>
               </div>
             )}
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
               <span className="text-sm font-medium">مبالغ غير محصّلة</span>
             </div>
             <span className="text-sm font-bold text-[hsl(var(--status-danger))]">
-              {formatLBP(totalPending)}
+              {formatCurrency(totalPending)}
             </span>
           </div>
         </section>
@@ -149,7 +149,7 @@ export default function AnalyticsPage() {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-bold text-foreground tabular-nums">
-                        {formatLBP(item.amount)}
+                        {formatCurrency(item.amount)}
                       </span>
                       <div className="flex items-center gap-1.5">
                         {isTop && (
@@ -286,7 +286,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between gap-3">
                 <div className="text-left shrink-0">
                   <p className="text-lg font-bold text-[hsl(var(--status-danger))] tabular-nums leading-tight">
-                    {formatLBP(topDebtor.balance)}
+                    {formatCurrency(topDebtor.balance)}
                   </p>
                   <p className="text-xs text-muted-foreground">رصيد متبقٍّ</p>
                 </div>

@@ -1,6 +1,6 @@
 import { Car, Calendar, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatLBP, formatDateShort } from "@/lib/format";
+import { formatCurrency, formatDateShort } from "@/lib/format";
 import type { Rental } from "@/data/types";
 
 interface RentalCardProps {
@@ -74,7 +74,7 @@ export function RentalCard({
         <div className="flex items-center gap-3 flex-wrap justify-end">
           {remaining > 0 ? (
             <span className="text-sm font-bold text-[hsl(var(--status-danger))]">
-              {formatLBP(remaining)} متبقي
+              {formatCurrency(remaining)} متبقي
             </span>
           ) : (
             <span className="text-xs font-semibold text-[hsl(var(--status-available))]">
@@ -82,7 +82,7 @@ export function RentalCard({
             </span>
           )}
           <span className="text-sm font-semibold text-foreground">
-            {formatLBP(rental.totalAmount)}
+            {formatCurrency(rental.totalAmount)}
           </span>
         </div>
       </div>

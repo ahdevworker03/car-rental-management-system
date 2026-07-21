@@ -14,7 +14,7 @@ import {
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { InfoRow } from "@/components/ui/InfoRow";
-import { formatLBP, formatDateAr } from "@/lib/format";
+import { formatCurrency, formatDateAr } from "@/lib/format";
 import { rentals, vehicles, getCustomerById, getVehicleById } from "@/data";
 import type { Rental, Payment } from "@/data/types";
 
@@ -262,7 +262,7 @@ export default function RentalDetailPage({ params }: Props) {
             label="الأجرة اليومية"
             value={
               primaryVehicle
-                ? formatLBP(rental.dailyPrices[primaryVehicle.id] ?? 0)
+                ? formatCurrency(rental.dailyPrices[primaryVehicle.id] ?? 0)
                 : "—"
             }
           />
@@ -270,7 +270,7 @@ export default function RentalDetailPage({ params }: Props) {
             label="الإجمالي"
             value={
               <span className="font-bold text-foreground">
-                {formatLBP(rental.totalAmount)}
+                {formatCurrency(rental.totalAmount)}
               </span>
             }
           />
@@ -296,7 +296,7 @@ export default function RentalDetailPage({ params }: Props) {
                 {paidPercent}% مدفوع
               </span>
               <span>
-                {formatLBP(paid)} من {formatLBP(rental.totalAmount)}
+                {formatCurrency(paid)} من {formatCurrency(rental.totalAmount)}
               </span>
             </div>
           </div>
@@ -305,7 +305,7 @@ export default function RentalDetailPage({ params }: Props) {
           {remaining > 0 && (
             <div className="flex justify-between items-center py-2 border-t border-border mb-2">
               <span className="text-base font-bold text-[hsl(var(--status-danger))]">
-                {formatLBP(remaining)}
+                {formatCurrency(remaining)}
               </span>
               <span className="text-sm font-semibold text-[hsl(var(--status-danger))]">
                 الرصيد المتبقي
@@ -322,7 +322,7 @@ export default function RentalDetailPage({ params }: Props) {
                   className="flex items-center justify-between py-1.5 border-b border-border last:border-0"
                 >
                   <span className="text-sm font-semibold text-[hsl(var(--status-available))]">
-                    {formatLBP(p.amount)}
+                    {formatCurrency(p.amount)}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {formatDateAr(p.date)}
@@ -397,7 +397,7 @@ export default function RentalDetailPage({ params }: Props) {
             </div>
             {remaining > 0 && (
               <p className="text-xs text-[hsl(var(--status-danger))] text-right font-medium">
-                ملاحظة: لا يزال هناك رصيد متبقي {formatLBP(remaining)}
+                ملاحظة: لا يزال هناك رصيد متبقي {formatCurrency(remaining)}
               </p>
             )}
             <div className="flex gap-2">
