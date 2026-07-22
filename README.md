@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/screenshots/hero-desktop.png" alt="Car Rental Management System" width="80%" style="max-width: 800px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.12);">
+  <img src="assets/screenshots/hero.png" alt="Car Rental Management System" width="80%" style="max-width: 800px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.12);">
 </p>
 
 <h1 align="center">Car Rental Management System</h1>
@@ -35,18 +35,21 @@ All data currently lives in local mock storage, simulating realistic business sc
 ## Features
 
 ### 🚗 Fleet Management
+
 - **Vehicle inventory** with status tracking (available, rented, maintenance)
 - **Detail views** with rental and maintenance history
 - **Search and filter** by name, plate, year, or status
 - **Add new vehicles** with full registration details
 
 ### 👥 Customer Management
+
 - **Customer directory** with phone numbers and locations
 - **Detailed profiles** with contact info, payment summary, and rental history
 - **Quick actions** — call directly, create rentals from profiles
 - **Searchable** by name, phone, or location
 
 ### 📋 Rental Operations
+
 - **Multi-step rental creation wizard** — select vehicle, customer, dates, and pricing
 - **Payment tracking** with progress bars, history, and remaining balance
 - **Return workflow** with date capture and automatic status updates
@@ -54,6 +57,7 @@ All data currently lives in local mock storage, simulating realistic business sc
 - **Inline payment recording** during active rentals
 
 ### 🔧 Maintenance Management
+
 - **Records categorized** by type: oil change, inspection, insurance, registration, repair
 - **Status tracking** — upcoming, overdue, completed
 - **Overdue alerts** with count badges and quick-filtering
@@ -61,6 +65,7 @@ All data currently lives in local mock storage, simulating realistic business sc
 - **Filter and search** by vehicle or maintenance type
 
 ### 📊 Analytics & Reporting
+
 - **Revenue overview** with month-over-month comparison
 - **Fleet status breakdown** — available, rented, under maintenance
 - **Vehicle revenue ranking** with progress bars
@@ -68,6 +73,7 @@ All data currently lives in local mock storage, simulating realistic business sc
 - **Quick stats** — completed rentals, registered customers
 
 ### 📈 Dashboard
+
 - **Fleet summary** with clickable stat cards
 - **Revenue snapshot** — total income and pending balance
 - **Quick actions** — rent, return, add vehicle, schedule maintenance
@@ -75,6 +81,7 @@ All data currently lives in local mock storage, simulating realistic business sc
 - **Upcoming maintenance** and **recent activity** feed
 
 ### 🌐 Internationalization & UX
+
 - **Arabic (RTL)** interface with Lebanese month names and currency formatting
 - **Mobile-first design** with 480px max-width, optimized for on-the-go use
 - **Bottom tab navigation** for one-handed operation
@@ -111,23 +118,23 @@ All data currently lives in local mock storage, simulating realistic business sc
 
 ## Tech Stack
 
-| Category | Technology |
-|---|---|
-| **Framework** | [React 19](https://react.dev/) |
-| **Language** | [TypeScript](https://www.typescriptlang.org/) |
-| **Build Tool** | [Vite](https://vitejs.dev/) |
-| **Routing** | [wouter](https://github.com/molefrog/wouter) |
-| **UI Library** | [shadcn/ui](https://ui.shadcn.com/) (New York, neutral) |
-| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) |
-| **Components** | [Radix UI](https://www.radix-ui.com/) primitives |
-| **Data Fetching** | [TanStack React Query](https://tanstack.com/query) |
-| **Animation** | [framer-motion](https://www.framer.com/motion/) |
-| **Icons** | [lucide-react](https://lucide.dev/) |
-| **Charts** | [recharts](https://recharts.org/) |
-| **Forms** | [react-hook-form](https://react-hook-form.com/) + [Zod](https://zod.dev/) |
-| **Date Handling** | [date-fns](https://date-fns.org/) + [react-day-picker](https://react-day-picker.js.org/) |
-| **Notifications** | [sonner](https://sonner.emilkowal.ski/) |
-| **Package Manager** | [pnpm](https://pnpm.io/) |
+| Category            | Technology                                                                               |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| **Framework**       | [React 19](https://react.dev/)                                                           |
+| **Language**        | [TypeScript](https://www.typescriptlang.org/)                                            |
+| **Build Tool**      | [Vite](https://vitejs.dev/)                                                              |
+| **Routing**         | [wouter](https://github.com/molefrog/wouter)                                             |
+| **UI Library**      | [shadcn/ui](https://ui.shadcn.com/) (New York, neutral)                                  |
+| **Styling**         | [Tailwind CSS v4](https://tailwindcss.com/)                                              |
+| **Components**      | [Radix UI](https://www.radix-ui.com/) primitives                                         |
+| **Data Fetching**   | [TanStack React Query](https://tanstack.com/query)                                       |
+| **Animation**       | [framer-motion](https://www.framer.com/motion/)                                          |
+| **Icons**           | [lucide-react](https://lucide.dev/)                                                      |
+| **Charts**          | [recharts](https://recharts.org/)                                                        |
+| **Forms**           | [react-hook-form](https://react-hook-form.com/) + [Zod](https://zod.dev/)                |
+| **Date Handling**   | [date-fns](https://date-fns.org/) + [react-day-picker](https://react-day-picker.js.org/) |
+| **Notifications**   | [sonner](https://sonner.emilkowal.ski/)                                                  |
+| **Package Manager** | [pnpm](https://pnpm.io/)                                                                 |
 
 ---
 
