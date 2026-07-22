@@ -219,5 +219,3 @@ This is a **frontend MVP** — fully functional and navigable, operating on loca
 [MIT](LICENSE)
 
 ---
-
-<p align="center"><sub>Built with React, TypeScript, Tailwind CSS, and shadcn/ui</sub></p>
