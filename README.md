@@ -100,7 +100,9 @@ All data currently lives in local mock storage, simulating realistic business sc
     </tr>
     <tr>
       <td align="center"><img src="assets/screenshots/maintenance.png" width="200" alt="Maintenance"><br><sub>Maintenance</sub></td>
+      <td align="center"><img src="assets/screenshots/maintenance-add.png" width="200" alt="Add Maintenance"><br><sub>Add Maintenance</sub></td>
       <td align="center"><img src="assets/screenshots/analytics.png" width="200" alt="Analytics"><br><sub>Analytics</sub></td>
+      <td align="center"><img src="assets/screenshots/vehicles-available.png" width="200" alt="Vehicles Available"><br><sub>Vehicles Available</sub></td>
     </tr>
   </table>
 </div>
