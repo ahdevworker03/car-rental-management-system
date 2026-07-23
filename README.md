@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">Car Rental Management System</h1>
-<p align="center"><strong>نظام تأجير السيارات</strong></p>
+<h3 align="center" style="font-size: 22px; font-weight: 600; margin: 8px 0 16px 0; color: #6b7280;">نظام تأجير السيارات</h3>
 <p align="center">A frontend MVP for managing a car rental business — vehicle tracking, customer management, contract handling, payment processing, maintenance scheduling, and analytics.</p>
 
 <p align="center">
@@ -20,7 +20,9 @@
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT">
 </p>
 
-<br>
+<h2 align="center">
+  <a href="https://car-rental-management-system-car-re.vercel.app/" style="text-decoration: none; color: inherit;"><strong>🌐 Live Preview<strong/></a>
+</h2>
 
 ## Overview
 
