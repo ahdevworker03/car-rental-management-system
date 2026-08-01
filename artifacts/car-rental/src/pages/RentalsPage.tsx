@@ -8,16 +8,17 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { RentalCard } from "@/components/ui/RentalCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 
-import {
-  rentals,
-  getCustomerById,
-  getVehicleById,
-} from "@/data";
+import { useRentals } from "@/features/rentals/hooks";
+import { useCustomer } from "@/features/customers/hooks";
+import { useVehicle } from "@/features/vehicles/hooks";
 
 export default function RentalsPage() {
   const [, setLocation] = useLocation();
   const [tab, setTab] = useState<"active" | "ended">("active");
   const [search, setSearch] = useState("");
+  const rentals = useRentals();
+  const getCustomerById = useCustomer;
+  const getVehicleById = useVehicle;
 
   const filtered = rentals
     .filter((r) => r.status === (tab === "active" ? "active" : "ended"))

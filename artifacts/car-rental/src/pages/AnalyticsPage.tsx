@@ -6,8 +6,23 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 import { formatCurrency } from "@/lib/format";
+import { VEHICLE_STATUS_LABELS } from "@/lib/labels";
 
-import { vehicles, rentals, customers, getVehicleById, getCustomerById } from "@/data";
+import { useVehicles, useVehicleById } from "@/features/vehicles/hooks";
+import { useRentals } from "@/features/rentals/hooks";
+import { useCustomers, useCustomerById } from "@/features/customers/hooks";
+import {
+  getVehicleStatusCounts,
+  getVehiclesByStatus,
+} from "@/features/vehicles/selectors";
+import {
+  getActiveRentals,
+  getEndedRentals,
+  getMonthlyRevenue,
+  getPendingBalance,
+  getVehicleRevenueForMonth,
+  getCustomerBalances,
+} from "@/features/rentals/selectors";
 
 // ─── Mock date anchor ─────────────────────────────────────────────────────────
 const MOCK_MONTH = 0;   // January
@@ -15,78 +30,96 @@ const MOCK_YEAR  = 2025;
 const PREV_MONTH = 11;  // December
 const PREV_YEAR  = 2024;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function isInMonth(dateStr: string, month: number, year: number): boolean {
-  const d = new Date(dateStr);
-  return d.getMonth() === month && d.getFullYear() === year;
-}
+// ─── Derived data (computed per render from the feature hooks) ──────────────────
+function deriveAnalytics(
+  vehicles: ReturnType<typeof useVehicles>,
+  rentals: ReturnType<typeof useRentals>,
+  customers: ReturnType<typeof useCustomers>,
+  getVehicleById: (id: string) => import("@/data/types").Vehicle | undefined,
+  getCustomerById: (id: string) => import("@/data/types").Customer | undefined
+) {
+  const thisMonthRevenue = getMonthlyRevenue(rentals, MOCK_MONTH, MOCK_YEAR);
+  const prevMonthRevenue = getMonthlyRevenue(rentals, PREV_MONTH, PREV_YEAR);
+  const vehicleRevenueThisMonth = getVehicleRevenueForMonth(rentals, MOCK_MONTH, MOCK_YEAR);
 
-// ─── Derived data ─────────────────────────────────────────────────────────────
+  const revenueChange =
+    prevMonthRevenue > 0
+      ? Math.round(((thisMonthRevenue - prevMonthRevenue) / prevMonthRevenue) * 100)
+      : null;
+  const revenueUp = revenueChange !== null && revenueChange >= 0;
 
-let thisMonthRevenue = 0;
-let prevMonthRevenue = 0;
-const vehicleRevenueThisMonth: Record<string, number> = {};
+  const totalPending = getPendingBalance(rentals);
+  const activeRentals = getActiveRentals(rentals);
 
-rentals.forEach((r) => {
-  r.payments.forEach((p) => {
-    if (isInMonth(p.date, MOCK_MONTH, MOCK_YEAR)) {
-      thisMonthRevenue += p.amount;
-      const share = p.amount / r.vehicleIds.length;
-      r.vehicleIds.forEach((vid) => {
-        vehicleRevenueThisMonth[vid] = (vehicleRevenueThisMonth[vid] ?? 0) + share;
-      });
-    }
-    if (isInMonth(p.date, PREV_MONTH, PREV_YEAR)) {
-      prevMonthRevenue += p.amount;
-    }
-  });
-});
+  const vehicleRevenueList = Object.entries(vehicleRevenueThisMonth)
+    .map(([vid, amount]) => ({ vehicle: getVehicleById(vid)!, amount }))
+    .filter((x) => x.vehicle && x.amount > 0)
+    .sort((a, b) => b.amount - a.amount);
 
-const revenueChange =
-  prevMonthRevenue > 0
-    ? Math.round(((thisMonthRevenue - prevMonthRevenue) / prevMonthRevenue) * 100)
+  const maxVehicleRevenue = vehicleRevenueList[0]?.amount ?? 1;
+
+  const {
+    available: availableCount,
+    rented: rentedCount,
+    maintenance: maintenanceCount,
+  } = getVehicleStatusCounts(vehicles);
+
+  const rentedVehicles      = getVehiclesByStatus(vehicles, "rented");
+  const maintenanceVehicles = getVehiclesByStatus(vehicles, "maintenance");
+
+  const endedCount = getEndedRentals(rentals).length;
+
+  const customerBalance = getCustomerBalances(rentals);
+  const topDebtorEntry = Object.entries(customerBalance).sort((a, b) => b[1] - a[1])[0];
+  const topDebtor = topDebtorEntry
+    ? { customer: getCustomerById(topDebtorEntry[0])!, balance: topDebtorEntry[1] }
     : null;
-const revenueUp = revenueChange !== null && revenueChange >= 0;
 
-let totalPending = 0;
-const activeRentals = rentals.filter((r) => r.status === "active");
-activeRentals.forEach((r) => {
-  const paid = r.payments.reduce((s, p) => s + p.amount, 0);
-  totalPending += Math.max(0, r.totalAmount - paid);
-});
-
-const vehicleRevenueList = Object.entries(vehicleRevenueThisMonth)
-  .map(([vid, amount]) => ({ vehicle: getVehicleById(vid)!, amount }))
-  .filter((x) => x.vehicle && x.amount > 0)
-  .sort((a, b) => b.amount - a.amount);
-
-const maxVehicleRevenue = vehicleRevenueList[0]?.amount ?? 1;
-
-const availableCount   = vehicles.filter((v) => v.status === "available").length;
-const rentedCount      = vehicles.filter((v) => v.status === "rented").length;
-const maintenanceCount = vehicles.filter((v) => v.status === "maintenance").length;
-
-const rentedVehicles      = vehicles.filter((v) => v.status === "rented");
-const maintenanceVehicles = vehicles.filter((v) => v.status === "maintenance");
-
-const endedCount = rentals.filter((r) => r.status === "ended").length;
-
-const customerBalance: Record<string, number> = {};
-activeRentals.forEach((r) => {
-  const paid = r.payments.reduce((s, p) => s + p.amount, 0);
-  const remaining = Math.max(0, r.totalAmount - paid);
-  if (remaining > 0) {
-    customerBalance[r.customerId] = (customerBalance[r.customerId] ?? 0) + remaining;
-  }
-});
-const topDebtorEntry = Object.entries(customerBalance).sort((a, b) => b[1] - a[1])[0];
-const topDebtor = topDebtorEntry
-  ? { customer: getCustomerById(topDebtorEntry[0])!, balance: topDebtorEntry[1] }
-  : null;
+  return {
+    thisMonthRevenue,
+    prevMonthRevenue,
+    revenueChange,
+    revenueUp,
+    totalPending,
+    activeRentals,
+    vehicleRevenueList,
+    maxVehicleRevenue,
+    availableCount,
+    rentedCount,
+    maintenanceCount,
+    rentedVehicles,
+    maintenanceVehicles,
+    endedCount,
+    topDebtor,
+  };
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
   const [, navigate] = useLocation();
+  const vehicles = useVehicles();
+  const rentals = useRentals();
+  const customers = useCustomers();
+  const getVehicleById = useVehicleById();
+  const getCustomerById = useCustomerById();
+
+  const {
+    thisMonthRevenue,
+    prevMonthRevenue,
+    revenueChange,
+    revenueUp,
+    totalPending,
+    activeRentals,
+    vehicleRevenueList,
+    maxVehicleRevenue,
+    availableCount,
+    rentedCount,
+    maintenanceCount,
+    rentedVehicles,
+    maintenanceVehicles,
+    endedCount,
+    topDebtor,
+  } = deriveAnalytics(vehicles, rentals, customers, getVehicleById, getCustomerById);
 
   return (
     <div className="min-h-full">
@@ -182,15 +215,15 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="rounded-xl bg-[hsl(var(--status-available-bg))] text-[hsl(var(--status-available))] p-3 text-center">
               <p className="text-2xl font-bold">{availableCount}</p>
-              <p className="text-xs font-medium mt-0.5">متاحة</p>
+              <p className="text-xs font-medium mt-0.5">{VEHICLE_STATUS_LABELS.available}</p>
             </div>
             <div className="rounded-xl bg-[hsl(var(--status-rented-bg))] text-[hsl(var(--status-rented))] p-3 text-center">
               <p className="text-2xl font-bold">{rentedCount}</p>
-              <p className="text-xs font-medium mt-0.5">مؤجرة</p>
+              <p className="text-xs font-medium mt-0.5">{VEHICLE_STATUS_LABELS.rented}</p>
             </div>
             <div className="rounded-xl bg-[hsl(var(--status-maintenance-bg))] text-[hsl(var(--status-maintenance))] p-3 text-center">
               <p className="text-2xl font-bold">{maintenanceCount}</p>
-              <p className="text-xs font-medium mt-0.5">صيانة</p>
+              <p className="text-xs font-medium mt-0.5">{VEHICLE_STATUS_LABELS.maintenance}</p>
             </div>
           </div>
 

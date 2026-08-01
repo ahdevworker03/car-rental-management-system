@@ -21,8 +21,7 @@ function NavTab({ tab }: { tab: (typeof TABS)[number] }) {
   return (
     <Link
       href={tab.route}
-      role="tab"
-      aria-selected={isActive}
+      aria-current={isActive ? "page" : undefined}
       className="flex-1"
     >
       <div className="flex flex-col items-center justify-center py-2 min-h-[56px] gap-1">
@@ -46,12 +45,15 @@ function NavTab({ tab }: { tab: (typeof TABS)[number] }) {
 
 export function BottomNavigation() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 w-full bg-background border-t border-border z-50">
-      <div role="tablist" className="max-w-[480px] mx-auto flex justify-between items-center px-2">
+    <nav
+      aria-label="التنقل الرئيسي"
+      className="fixed bottom-0 left-0 right-0 w-full bg-background border-t border-border z-50"
+    >
+      <div className="max-w-[480px] mx-auto flex justify-between items-center px-2">
         {TABS.map((tab) => (
           <NavTab key={tab.route} tab={tab} />
         ))}
       </div>
-    </div>
+    </nav>
   );
 }

@@ -5,12 +5,15 @@ import { InfoRow } from "@/components/ui/InfoRow";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { formatCurrency, formatDateAr, formatInitials } from "@/lib/format";
+import { useCustomer } from "@/features/customers/hooks";
+import { useRentalsForCustomer, useTotalRemaining } from "@/features/rentals/hooks";
+import { useVehicle } from "@/features/vehicles/hooks";
 import {
-  getCustomerById,
-  getRentalsForCustomer,
-  getVehicleById,
-  getTotalRemaining,
-} from "@/data";
+  getActiveRentals,
+  getEndedRentals,
+  getTotalPaid,
+  getRemaining,
+} from "@/features/rentals/selectors";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function CustomerDetailPage({
@@ -19,6 +22,10 @@ export default function CustomerDetailPage({
   params: { id: string };
 }) {
   const [, setLocation] = useLocation();
+  const getCustomerById = useCustomer;
+  const getRentalsForCustomer = useRentalsForCustomer;
+  const getVehicleById = useVehicle;
+  const getTotalRemaining = useTotalRemaining;
   const customer = getCustomerById(params.id);
 
   if (!customer) {
@@ -40,19 +47,13 @@ export default function CustomerDetailPage({
   }
 
   const allRentals = getRentalsForCustomer(customer.id);
-  const activeRentals = allRentals.filter((r) => r.status === "active");
-  const pastRentals = allRentals
-    .filter((r) => r.status === "ended")
-    .sort((a, b) => new Date(b.returnDate!).getTime() - new Date(a.returnDate!).getTime());
+  const activeRentals = getActiveRentals(allRentals);
+  const pastRentals = getEndedRentals(allRentals).sort(
+    (a, b) => new Date(b.returnDate!).getTime() - new Date(a.returnDate!).getTime()
+  );
 
-  const totalPaidAllTime = allRentals.reduce(
-    (sum, r) => sum + r.payments.reduce((s, p) => s + p.amount, 0),
-    0
-  );
-  const totalRemainingActive = activeRentals.reduce(
-    (sum, r) => sum + getTotalRemaining(r.id),
-    0
-  );
+  const totalPaidAllTime = allRentals.reduce((sum, r) => sum + getTotalPaid(r), 0);
+  const totalRemainingActive = activeRentals.reduce((sum, r) => sum + getRemaining(r), 0);
 
   return (
     <div className="min-h-full pb-6">

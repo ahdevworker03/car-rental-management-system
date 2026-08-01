@@ -5,22 +5,26 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { CustomerCard } from "@/components/ui/CustomerCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { customers, getRentalsForCustomer } from "@/data";
+import { useCustomers } from "@/features/customers/hooks";
+import { useRentalsForCustomer } from "@/features/rentals/hooks";
+import {
+  getActiveRentals,
+  getRemaining,
+} from "@/features/rentals/selectors";
 
 export default function CustomersPage() {
   const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
+  const customers = useCustomers();
+  const getRentalsForCustomer = useRentalsForCustomer;
 
   // Pre-compute per-customer stats once (static mock data)
   const statsMap = useMemo(() => {
     const map: Record<string, { activeCount: number; remaining: number }> = {};
     customers.forEach((c) => {
       const all = getRentalsForCustomer(c.id);
-      const active = all.filter((r) => r.status === "active");
-      const remaining = active.reduce((sum, r) => {
-        const paid = r.payments.reduce((s, p) => s + p.amount, 0);
-        return sum + Math.max(0, r.totalAmount - paid);
-      }, 0);
+      const active = getActiveRentals(all);
+      const remaining = active.reduce((sum, r) => sum + getRemaining(r), 0);
       map[c.id] = { activeCount: active.length, remaining };
     });
     return map;

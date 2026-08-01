@@ -29,20 +29,8 @@ function Router() {
       <Route path="/customers/add" component={AddCustomerPage} />
       <Route path="/customers/:id" component={CustomerDetailPage} />
       <Route path="/rentals" component={RentalsPage} />
-      <Route path="/rentals/new">
-        {/* Full-screen flow without bottom navigation */}
-        <div className="max-w-[480px] mx-auto h-[100dvh] flex flex-col bg-background relative overflow-hidden shadow-2xl">
-          <NewRentalPage />
-        </div>
-      </Route>
       <Route path="/rentals/:id" component={RentalDetailPage} />
       <Route path="/maintenance" component={MaintenancePage} />
-      <Route path="/maintenance/add">
-        {/* Full-screen flow without bottom navigation */}
-        <div className="max-w-[480px] mx-auto h-[100dvh] flex flex-col bg-background relative overflow-hidden shadow-2xl">
-          <AddMaintenancePage />
-        </div>
-      </Route>
       <Route path="/analytics" component={AnalyticsPage} />
       <Route component={NotFound} />
     </Switch>
@@ -53,8 +41,7 @@ function App() {
   return (
     <TooltipProvider>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-        {/* We use an exact path check here or inside AppShell. Let's just wrap the main routes with AppShell and let the Switch render inside. The exceptions are handled explicitly in the Routes above via Route nesting, but wouter doesn't allow easy Layout composition based on active route without custom logic. Since only two routes exclude AppShell, we handle it thus: */}
-        
+        {/* Full-screen flows render outside AppShell (no bottom navigation) */}
         <Switch>
           <Route path="/rentals/new">
             <div className="max-w-[480px] mx-auto h-[100dvh] flex flex-col bg-background relative overflow-hidden shadow-2xl">

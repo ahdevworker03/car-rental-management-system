@@ -1,9 +1,4 @@
 import {
-  Droplets,
-  Wrench,
-  Shield,
-  FileText,
-  Hammer,
   ChevronDown,
   ChevronUp,
   CheckCircle,
@@ -14,29 +9,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatCurrency, formatDateAr } from "@/lib/format";
-import type { MaintenanceRecord, MaintenanceType } from "@/data/types";
-
-// ── Type config ─────────────────────────────────────────────────────────────
-
-export const MAINTENANCE_TYPES: Record<
-  MaintenanceType,
-  { label: string; icon: React.ElementType }
-> = {
-  oil:          { label: "تغيير زيت",    icon: Droplets  },
-  inspection:   { label: "فحص ميكانيكي", icon: Wrench    },
-  insurance:    { label: "تأمين",         icon: Shield    },
-  registration: { label: "تسجيل",        icon: FileText  },
-  repair:       { label: "تصليح",        icon: Hammer    },
-};
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-const MOCK_TODAY = new Date("2025-01-15T12:00:00Z");
-
-function daysFromToday(dateStr: string): number {
-  const diff = new Date(dateStr).getTime() - MOCK_TODAY.getTime();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
+import { MAINTENANCE_TYPES } from "@/lib/labels";
+import { daysFromToday } from "@/lib/mock-date";
+import type { MaintenanceRecord } from "@/data/types";
 
 // ── Status colours ────────────────────────────────────────────────────────────
 

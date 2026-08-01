@@ -21,8 +21,6 @@ export interface Customer {
   notes?: string;
 }
 
-export type PaymentStatus = "paid" | "partial" | "unpaid";
-
 export interface Payment {
   id: string;
   amount: number;

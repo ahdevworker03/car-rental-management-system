@@ -1,39 +1,16 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
-import {
-  ChevronRight,
-  Car,
-  Search,
-  Check,
-  Droplets,
-  Wrench,
-  Shield,
-  FileText,
-  Hammer,
-} from "lucide-react";
+import { ChevronRight, Car, Search, Check } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
 import { cn } from "@/lib/utils";
-
-import { maintenance, vehicles } from "@/data";
+import { MAINTENANCE_TYPE_OPTIONS } from "@/lib/labels";
+import { MOCK_TODAY, MOCK_TODAY_STR, toISO } from "@/lib/mock-date";
+import { useTimeout } from "@/hooks/useTimeout";
+import { useMaintenance } from "@/features/maintenance/hooks";
+import { useVehicles } from "@/features/vehicles/hooks";
 import type { MaintenanceRecord, MaintenanceType } from "@/data/types";
-
-const MOCK_TODAY_STR = "2025-01-15";
-
-function toISO(dateStr: string): string {
-  return new Date(dateStr + "T12:00:00Z").toISOString();
-}
-
-// ── Type options ──────────────────────────────────────────────────────────────
-
-const TYPE_OPTIONS: { value: MaintenanceType; label: string; icon: React.ElementType }[] = [
-  { value: "oil",          label: "تغيير زيت",    icon: Droplets  },
-  { value: "inspection",   label: "فحص ميكانيكي", icon: Wrench    },
-  { value: "insurance",    label: "تأمين",         icon: Shield    },
-  { value: "registration", label: "تسجيل",        icon: FileText  },
-  { value: "repair",       label: "تصليح",        icon: Hammer    },
-];
 
 export default function AddMaintenancePage() {
   const [, setLocation] = useLocation();
@@ -53,6 +30,12 @@ export default function AddMaintenancePage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState(false);
+
+  // Redirect after save, cleaned up if the user navigates away first
+  useTimeout(() => setLocation("/maintenance"), saved ? 1200 : null);
+
+  const maintenance = useMaintenance();
+  const vehicles = useVehicles();
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId);
@@ -95,11 +78,10 @@ export default function AddMaintenancePage() {
 
     const dueISO = toISO(dueDate);
     const dueMoment = new Date(dueISO);
-    const today = new Date("2025-01-15T12:00:00Z");
 
     // Determine status: if due date is in the past → overdue, else upcoming
     const status: MaintenanceRecord["status"] =
-      dueMoment < today ? "overdue" : "upcoming";
+      dueMoment < MOCK_TODAY ? "overdue" : "upcoming";
 
     const newRecord: MaintenanceRecord = {
       id: `m-${Date.now()}`,
@@ -113,7 +95,6 @@ export default function AddMaintenancePage() {
 
     maintenance.push(newRecord);
     setSaved(true);
-    setTimeout(() => setLocation("/maintenance"), 1200);
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -150,7 +131,9 @@ export default function AddMaintenancePage() {
         {/* ── 1. Vehicle picker ─────────────────────────────────────── */}
         <div className="bg-card rounded-2xl border border-card-border shadow-sm overflow-hidden">
           <button
+            type="button"
             onClick={() => setShowVehiclePicker((v) => !v)}
+            aria-expanded={showVehiclePicker}
             className="w-full flex items-center justify-between p-4"
           >
             <ChevronRight
@@ -253,7 +236,7 @@ export default function AddMaintenancePage() {
             <span className="text-destructive mr-1">*</span>
           </label>
           <div className="grid grid-cols-2 gap-2">
-            {TYPE_OPTIONS.map((opt) => {
+            {MAINTENANCE_TYPE_OPTIONS.map((opt) => {
               const Icon = opt.icon;
               const isSelected = type === opt.value;
               return (

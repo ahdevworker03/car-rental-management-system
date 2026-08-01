@@ -5,8 +5,9 @@ import { Camera } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
 import { cn } from "@/lib/utils";
+import { VEHICLE_STATUS_LABELS } from "@/lib/labels";
 
-import type { VehicleStatus } from "@/data";
+import type { VehicleStatus } from "@/data/types";
 
 interface FormState {
   make: string;
@@ -160,9 +161,9 @@ export default function AddVehiclePage() {
               value={form.status}
               onChange={(e) => set("status", e.target.value as VehicleStatus)}
             >
-              <option value="available">متاحة</option>
-              <option value="rented">مؤجرة</option>
-              <option value="maintenance">صيانة</option>
+              <option value="available">{VEHICLE_STATUS_LABELS.available}</option>
+              <option value="rented">{VEHICLE_STATUS_LABELS.rented}</option>
+              <option value="maintenance">{VEHICLE_STATUS_LABELS.maintenance}</option>
             </select>
           </FormField>
         </div>

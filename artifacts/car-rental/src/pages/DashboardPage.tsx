@@ -14,29 +14,32 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { MAINTENANCE_TYPES } from "@/components/ui/MaintenanceCard";
+import { MAINTENANCE_TYPES, VEHICLE_STATUS_LABELS } from "@/lib/labels";
 import { formatCurrency, formatDateShort } from "@/lib/format";
+import { daysFromToday } from "@/lib/mock-date";
 import { cn } from "@/lib/utils";
+import { useVehicles, useVehicleById } from "@/features/vehicles/hooks";
+import { useRentals } from "@/features/rentals/hooks";
+import { useMaintenance } from "@/features/maintenance/hooks";
+import { useCustomerById } from "@/features/customers/hooks";
+import { getVehicleStatusCounts } from "@/features/vehicles/selectors";
 import {
-  vehicles,
-  rentals,
-  maintenance,
-  getVehicleById,
-  getCustomerById,
-} from "@/data";
+  getMonthlyRevenue,
+  getPendingBalance,
+  getRentalsEndingSoon,
+  getRecentEndedRentals,
+} from "@/features/rentals/selectors";
+import {
+  getOverdueMaintenance,
+  getUpcomingMaintenance,
+} from "@/features/maintenance/selectors";
 import type { MaintenanceType } from "@/data/types";
 
 // ─── Mock date anchor ──────────────────────────────────────────────────────────
-const MOCK_TODAY = new Date("2025-01-15T12:00:00Z");
 const MOCK_MONTH = 0; // January
 const MOCK_YEAR = 2025;
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
-function daysFromToday(dateStr: string): number {
-  const diff = new Date(dateStr).getTime() - MOCK_TODAY.getTime();
-  return Math.ceil(diff / 86_400_000);
-}
-
 function dueLabelFor(days: number): { text: string; urgent: boolean } {
   if (days < 0) return { text: `متأخر ${Math.abs(days)} يوم`, urgent: true };
   if (days === 0) return { text: "اليوم", urgent: true };
@@ -51,55 +54,39 @@ function relativeTimeLabel(pastDays: number): string {
   return `منذ ${pastDays} أيام`;
 }
 
-// ─── Derived data ──────────────────────────────────────────────────────────────
-const availableCount = vehicles.filter((v) => v.status === "available").length;
-const rentedCount = vehicles.filter((v) => v.status === "rented").length;
-const maintenanceCount = vehicles.filter((v) => v.status === "maintenance").length;
+// ─── Derived data (computed per render from the feature hooks) ──────────────────
+function deriveDashboard(
+  vehicles: ReturnType<typeof useVehicles>,
+  rentals: ReturnType<typeof useRentals>,
+  maintenance: ReturnType<typeof useMaintenance>
+) {
+  const {
+    available: availableCount,
+    rented: rentedCount,
+    maintenance: maintenanceCount,
+  } = getVehicleStatusCounts(vehicles);
 
-const endingSoonRentals = rentals
-  .filter((r) => r.status === "active")
-  .filter((r) => {
-    const days = daysFromToday(r.endDate);
-    return days >= 0 && days <= 2;
-  })
-  .sort((a, b) => new Date(a.endDate).getTime() - new Date(b.endDate).getTime());
+  const endingSoonRentals = getRentalsEndingSoon(rentals, daysFromToday);
+  const overdueItems = getOverdueMaintenance(maintenance);
+  const upcomingMaintenance = getUpcomingMaintenance(maintenance, daysFromToday, 7);
+  const monthlyRevenue = getMonthlyRevenue(rentals, MOCK_MONTH, MOCK_YEAR);
+  const pendingBalance = getPendingBalance(rentals);
+  const recentActivity = getRecentEndedRentals(rentals, 4);
+  const hasTasks = endingSoonRentals.length > 0 || overdueItems.length > 0;
 
-const overdueItems = maintenance.filter((m) => m.status === "overdue");
-
-const upcomingMaintenance = maintenance
-  .filter((m) => m.status === "upcoming")
-  .filter((m) => daysFromToday(m.dueDate) <= 7)
-  .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-
-const monthlyRevenue = rentals.reduce((sum, r) => {
-  return (
-    sum +
-    r.payments.reduce((s, p) => {
-      const d = new Date(p.date);
-      return d.getMonth() === MOCK_MONTH && d.getFullYear() === MOCK_YEAR
-        ? s + p.amount
-        : s;
-    }, 0)
-  );
-}, 0);
-
-const pendingBalance = rentals
-  .filter((r) => r.status === "active")
-  .reduce((sum, r) => {
-    const paid = r.payments.reduce((s, p) => s + p.amount, 0);
-    return sum + Math.max(0, r.totalAmount - paid);
-  }, 0);
-
-const recentActivity = rentals
-  .filter((r) => r.status === "ended" && r.returnDate)
-  .sort(
-    (a, b) =>
-      new Date(b.returnDate!).getTime() - new Date(a.returnDate!).getTime()
-  )
-  .slice(0, 4);
-
-const hasTasks =
-  endingSoonRentals.length > 0 || overdueItems.length > 0;
+  return {
+    availableCount,
+    rentedCount,
+    maintenanceCount,
+    endingSoonRentals,
+    overdueItems,
+    upcomingMaintenance,
+    monthlyRevenue,
+    pendingBalance,
+    recentActivity,
+    hasTasks,
+  };
+}
 
 // ─── Local sub-components ──────────────────────────────────────────────────────
 
@@ -113,16 +100,17 @@ function TaskCard({
   urgent?: boolean;
 }) {
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
       className={cn(
-        "bg-card rounded-xl p-4 border shadow-sm flex items-start gap-3",
+        "w-full text-right bg-card rounded-xl p-4 border shadow-sm flex items-start gap-3",
         urgent ? "border-[hsl(var(--status-danger-bg))]" : "border-card-border",
         onClick && "cursor-pointer active:scale-[0.99] transition-transform"
       )}
     >
       {children}
-    </div>
+    </button>
   );
 }
 
@@ -155,11 +143,20 @@ function QuickActionButton({
   );
 }
 
-function RevenueCard({ onClick }: { onClick: () => void }) {
+function RevenueCard({
+  onClick,
+  monthlyRevenue,
+  pendingBalance,
+}: {
+  onClick: () => void;
+  monthlyRevenue: number;
+  pendingBalance: number;
+}) {
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      className="bg-primary rounded-2xl p-5 cursor-pointer active:scale-[0.99] transition-transform shadow-sm"
+      className="w-full text-right bg-primary rounded-2xl p-5 cursor-pointer active:scale-[0.99] transition-transform shadow-sm"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-primary-foreground/80">
@@ -186,11 +183,21 @@ function RevenueCard({ onClick }: { onClick: () => void }) {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
-function ActivityRow({ rentalId }: { rentalId: string }) {
+function ActivityRow({
+  rentalId,
+  rentals,
+  getVehicleById,
+  getCustomerById,
+}: {
+  rentalId: string;
+  rentals: ReturnType<typeof useRentals>;
+  getVehicleById: (id: string) => import("@/data/types").Vehicle | undefined;
+  getCustomerById: (id: string) => import("@/data/types").Customer | undefined;
+}) {
   const rental = rentals.find((r) => r.id === rentalId);
   if (!rental) return null;
   const vehicle = getVehicleById(rental.vehicleIds[0]);
@@ -230,6 +237,24 @@ function ActivityRow({ rentalId }: { rentalId: string }) {
 
 export default function DashboardPage() {
   const [, setLocation] = useLocation();
+  const vehicles = useVehicles();
+  const rentals = useRentals();
+  const maintenance = useMaintenance();
+  const getVehicleById = useVehicleById();
+  const getCustomerById = useCustomerById();
+
+  const {
+    availableCount,
+    rentedCount,
+    maintenanceCount,
+    endingSoonRentals,
+    overdueItems,
+    upcomingMaintenance,
+    monthlyRevenue,
+    pendingBalance,
+    recentActivity,
+    hasTasks,
+  } = deriveDashboard(vehicles, rentals, maintenance);
 
   return (
     <div className="min-h-full">
@@ -250,19 +275,19 @@ export default function DashboardPage() {
           />
           <div className="grid grid-cols-3 gap-3">
             <StatCard
-              label="متاحة"
+              label={VEHICLE_STATUS_LABELS.available}
               value={availableCount}
               variant="available"
               onClick={() => setLocation("/vehicles?filter=available")}
             />
             <StatCard
-              label="مؤجرة"
+              label={VEHICLE_STATUS_LABELS.rented}
               value={rentedCount}
               variant="rented"
               onClick={() => setLocation("/vehicles?filter=rented")}
             />
             <StatCard
-              label="صيانة"
+              label={VEHICLE_STATUS_LABELS.maintenance}
               value={maintenanceCount}
               variant="maintenance"
               onClick={() => setLocation("/vehicles?filter=maintenance")}
@@ -272,7 +297,11 @@ export default function DashboardPage() {
 
         {/* ── Revenue ───────────────────────────────────────────────────── */}
         <section>
-          <RevenueCard onClick={() => setLocation("/analytics")} />
+          <RevenueCard
+            onClick={() => setLocation("/analytics")}
+            monthlyRevenue={monthlyRevenue}
+            pendingBalance={pendingBalance}
+          />
         </section>
 
         {/* ── Quick Actions ─────────────────────────────────────────────── */}
@@ -482,7 +511,13 @@ export default function DashboardPage() {
           ) : (
             <div className="bg-card rounded-xl border border-card-border shadow-sm px-4">
               {recentActivity.map((rental) => (
-                <ActivityRow key={rental.id} rentalId={rental.id} />
+                <ActivityRow
+                  key={rental.id}
+                  rentalId={rental.id}
+                  rentals={rentals}
+                  getVehicleById={getVehicleById}
+                  getCustomerById={getCustomerById}
+                />
               ))}
             </div>
           )}

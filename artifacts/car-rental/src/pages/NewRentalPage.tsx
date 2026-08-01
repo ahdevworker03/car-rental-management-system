@@ -6,20 +6,17 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { FormField, inputClass } from "@/components/ui/FormField";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
-
-import { rentals, vehicles, customers } from "@/data";
+import { MOCK_TODAY_STR, toISO } from "@/lib/mock-date";
+import { useTimeout } from "@/hooks/useTimeout";
+import { useRentals } from "@/features/rentals/hooks";
+import { useVehicles } from "@/features/vehicles/hooks";
+import { useCustomers } from "@/features/customers/hooks";
 import type { Rental } from "@/data/types";
-
-const MOCK_TODAY_STR = "2025-01-15";
 
 function calcDays(start: string, end: string): number {
   if (!start || !end) return 0;
   const diff = new Date(end).getTime() - new Date(start).getTime();
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-}
-
-function toISO(dateStr: string): string {
-  return new Date(dateStr + "T12:00:00Z").toISOString();
 }
 
 export default function NewRentalPage() {
@@ -47,6 +44,13 @@ export default function NewRentalPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState(false);
+
+  // Redirect after save, cleaned up if the user navigates away first
+  useTimeout(() => setLocation("/rentals"), saved ? 1200 : null);
+
+  const rentals = useRentals();
+  const vehicles = useVehicles();
+  const customers = useCustomers();
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const availableVehicles = useMemo(
@@ -180,7 +184,6 @@ export default function NewRentalPage() {
     }
 
     setSaved(true);
-    setTimeout(() => setLocation("/rentals"), 1200);
   }
 
   // ── Success screen ────────────────────────────────────────────────────────
@@ -258,10 +261,16 @@ export default function NewRentalPage() {
 
         {/* ── 1. Vehicle picker ─────────────────────────────────────────── */}
         <div className="bg-card rounded-2xl border border-card-border shadow-sm overflow-hidden">
-          <button
-            onClick={() => setShowVehiclePicker((v) => !v)}
-            className="w-full flex items-center justify-between p-4"
-          >
+          {/* Overlay toggle keeps the clear-selection button from nesting inside another button */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowVehiclePicker((v) => !v)}
+              aria-expanded={showVehiclePicker}
+              aria-label="اختيار السيارة"
+              className="absolute inset-0 w-full rounded-2xl"
+            />
+            <div className="w-full flex items-center justify-between p-4 pointer-events-none">
             <ChevronRight
               className={`w-4 h-4 text-muted-foreground transition-transform ${
                 showVehiclePicker ? "-rotate-90" : ""
@@ -272,11 +281,9 @@ export default function NewRentalPage() {
               {selectedVehicle ? (
                 <>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeVehicle();
-                    }}
-                    className="w-8 h-8 rounded-full flex items-center justify-center bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:scale-90 transition-all flex-shrink-0"
+                    type="button"
+                    onClick={removeVehicle}
+                    className="pointer-events-auto relative w-8 h-8 rounded-full flex items-center justify-center bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:scale-90 transition-all flex-shrink-0"
                     aria-label="إلغاء اختيار السيارة"
                   >
                     <X className="w-4 h-4" strokeWidth={2} />
@@ -308,7 +315,8 @@ export default function NewRentalPage() {
                 <Car className="w-5 h-5 text-primary" strokeWidth={1.5} />
               </div>
             </div>
-          </button>
+            </div>
+          </div>
 
           {errors.vehicle && (
             <p className="text-xs text-destructive px-4 pb-2 text-right">
@@ -389,10 +397,16 @@ export default function NewRentalPage() {
 
         {/* ── 2. Customer picker ────────────────────────────────────────── */}
         <div className="bg-card rounded-2xl border border-card-border shadow-sm overflow-hidden">
-          <button
-            onClick={() => setShowCustomerPicker((v) => !v)}
-            className="w-full flex items-center justify-between p-4"
-          >
+          {/* Overlay toggle keeps the clear-selection button from nesting inside another button */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowCustomerPicker((v) => !v)}
+              aria-expanded={showCustomerPicker}
+              aria-label="اختيار العميل"
+              className="absolute inset-0 w-full rounded-2xl"
+            />
+            <div className="w-full flex items-center justify-between p-4 pointer-events-none">
             <ChevronRight
               className={`w-4 h-4 text-muted-foreground transition-transform ${
                 showCustomerPicker ? "-rotate-90" : ""
@@ -403,11 +417,9 @@ export default function NewRentalPage() {
               {selectedCustomer ? (
                 <>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeCustomer();
-                    }}
-                    className="w-8 h-8 rounded-full flex items-center justify-center bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:scale-90 transition-all flex-shrink-0"
+                    type="button"
+                    onClick={removeCustomer}
+                    className="pointer-events-auto relative w-8 h-8 rounded-full flex items-center justify-center bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:scale-90 transition-all flex-shrink-0"
                     aria-label="إلغاء اختيار العميل"
                   >
                     <X className="w-4 h-4" strokeWidth={2} />
@@ -434,7 +446,8 @@ export default function NewRentalPage() {
                 <User className="w-5 h-5 text-primary" strokeWidth={1.5} />
               </div>
             </div>
-          </button>
+            </div>
+          </div>
 
           {errors.customer && (
             <p className="text-xs text-destructive px-4 pb-2 text-right">

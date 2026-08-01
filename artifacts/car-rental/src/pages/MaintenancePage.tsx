@@ -7,11 +7,14 @@ import { FilterChips } from "@/components/ui/FilterChips";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { MaintenanceCard } from "@/components/ui/MaintenanceCard";
+import { MAINTENANCE_TYPES } from "@/lib/labels";
 
-import { maintenance, getVehicleById } from "@/data";
+import { MOCK_TODAY } from "@/lib/mock-date";
+import { useTimeout } from "@/hooks/useTimeout";
+import { useMaintenance } from "@/features/maintenance/hooks";
+import { useVehicle } from "@/features/vehicles/hooks";
+import { getOverdueCount } from "@/features/maintenance/selectors";
 import type { MaintenanceRecord } from "@/data/types";
-
-const MOCK_TODAY = new Date("2025-01-15T12:00:00Z");
 
 type FilterValue = "all" | "overdue" | "upcoming" | "completed";
 
@@ -39,11 +42,16 @@ export default function MaintenancePage() {
   const [, setLocation] = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const maintenance = useMaintenance();
+  const getVehicleById = useVehicle;
   const [records, setRecords] = useState<MaintenanceRecord[]>(() => [...maintenance]);
   const filter = (searchParams.get("filter") as FilterValue) || "all";
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
+
+  // Auto-clear the success banner, cleaned up on unmount
+  useTimeout(() => setSuccessMsg(""), successMsg ? 2500 : null);
 
   // ── Derived list ──────────────────────────────────────────────────────────
   const filtered = sortRecords(
@@ -53,18 +61,11 @@ export default function MaintenancePage() {
       const q = search.trim().toLowerCase();
       const v = getVehicleById(r.vehicleId);
       const vehicleStr = v ? `${v.make} ${v.model} ${v.plate}`.toLowerCase() : "";
-      const typeLabels: Record<string, string> = {
-        oil: "تغيير زيت",
-        inspection: "فحص ميكانيكي",
-        insurance: "تأمين",
-        registration: "تسجيل",
-        repair: "تصليح",
-      };
-      return vehicleStr.includes(q) || typeLabels[r.type]?.includes(q);
+      return vehicleStr.includes(q) || MAINTENANCE_TYPES[r.type]?.label.includes(q);
     })
   );
 
-  const overdueCount  = records.filter((r) => r.status === "overdue").length;
+  const overdueCount  = getOverdueCount(records);
 
   // ── Mark complete ─────────────────────────────────────────────────────────
   function handleMarkComplete(id: string) {
@@ -79,7 +80,6 @@ export default function MaintenancePage() {
 
     setExpandedId(null);
     setSuccessMsg("تم تسجيل الإنجاز");
-    setTimeout(() => setSuccessMsg(""), 2500);
   }
 
   function handleToggle(id: string) {

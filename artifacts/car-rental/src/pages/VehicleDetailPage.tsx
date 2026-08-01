@@ -4,16 +4,12 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { InfoRow } from "@/components/ui/InfoRow";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
-import { MAINTENANCE_TYPES } from "@/components/ui/MaintenanceCard";
+import { MAINTENANCE_TYPES } from "@/lib/labels";
 import { formatCurrency, formatDateAr } from "@/lib/format";
-import {
-  getVehicleById,
-  getCustomerById,
-  getRentalsForVehicle,
-  getMaintenanceForVehicle,
-  getTotalRemaining,
-  vehicles,
-} from "@/data";
+import { useVehicle } from "@/features/vehicles/hooks";
+import { useCustomer } from "@/features/customers/hooks";
+import { useRentalsForVehicle, useTotalRemaining } from "@/features/rentals/hooks";
+import { useMaintenanceForVehicle } from "@/features/maintenance/hooks";
 import type { MaintenanceType } from "@/data/types";
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -23,6 +19,11 @@ export default function VehicleDetailPage({
   params: { id: string };
 }) {
   const [, setLocation] = useLocation();
+  const getVehicleById = useVehicle;
+  const getCustomerById = useCustomer;
+  const getRentalsForVehicle = useRentalsForVehicle;
+  const getMaintenanceForVehicle = useMaintenanceForVehicle;
+  const getTotalRemaining = useTotalRemaining;
   const vehicle = getVehicleById(params.id);
 
   if (!vehicle) {

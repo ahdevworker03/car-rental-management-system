@@ -6,20 +6,19 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { VehicleCard } from "@/components/ui/VehicleCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import {
-  vehicles,
-  getActiveRentals,
-  getCustomerById,
-} from "@/data";
-import type { VehicleStatus } from "@/data";
+import { useVehicles } from "@/features/vehicles/hooks";
+import { useActiveRentals } from "@/features/rentals/hooks";
+import { useCustomer } from "@/features/customers/hooks";
+import type { VehicleStatus } from "@/data/types";
+import { VEHICLE_STATUS_LABELS } from "@/lib/labels";
 
 type FilterValue = "all" | VehicleStatus;
 
 const FILTER_OPTIONS = [
   { label: "الكل", value: "all" },
-  { label: "متاحة", value: "available" },
-  { label: "مؤجرة", value: "rented" },
-  { label: "صيانة", value: "maintenance" },
+  { label: VEHICLE_STATUS_LABELS.available, value: "available" },
+  { label: VEHICLE_STATUS_LABELS.rented, value: "rented" },
+  { label: VEHICLE_STATUS_LABELS.maintenance, value: "maintenance" },
 ] satisfies { label: string; value: FilterValue }[];
 
 export default function VehiclesPage() {
@@ -28,6 +27,10 @@ export default function VehiclesPage() {
   const [search, setSearch] = useState("");
 
   const filter = (searchParams.get("filter") as FilterValue) || "all";
+
+  const vehicles = useVehicles();
+  const getActiveRentals = useActiveRentals;
+  const getCustomerById = useCustomer;
 
   // Build vehicleId → renterName map from active rentals (static data, no memo needed)
   const renterMap = useMemo(() => {

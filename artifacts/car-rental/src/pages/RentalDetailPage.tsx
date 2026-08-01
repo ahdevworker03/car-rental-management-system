@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import {
   Phone,
@@ -15,11 +15,13 @@ import {
 import { PageHeader } from "@/components/layout/PageHeader";
 import { InfoRow } from "@/components/ui/InfoRow";
 import { formatCurrency, formatDateAr } from "@/lib/format";
-import { rentals, vehicles, getCustomerById, getVehicleById } from "@/data";
+import { MOCK_TODAY, MOCK_TODAY_STR as MOCK_TODAY_DATE } from "@/lib/mock-date";
+import { useTimeout } from "@/hooks/useTimeout";
+import { useRentals } from "@/features/rentals/hooks";
+import { useVehicles, useVehicleById } from "@/features/vehicles/hooks";
+import { useCustomer } from "@/features/customers/hooks";
+import { getTotalPaid, getRemaining } from "@/features/rentals/selectors";
 import type { Rental, Payment } from "@/data/types";
-
-const MOCK_TODAY = new Date("2025-01-15T12:00:00Z");
-const MOCK_TODAY_DATE = "2025-01-15";
 
 function daysBetween(start: string, end: string) {
   const diff = new Date(end).getTime() - new Date(start).getTime();
@@ -32,6 +34,10 @@ interface Props {
 
 export default function RentalDetailPage({ params }: Props) {
   const [, setLocation] = useLocation();
+  const rentals = useRentals();
+  const vehicles = useVehicles();
+  const getCustomerById = useCustomer;
+  const getVehicleById = useVehicleById();
 
   const [rental, setRental] = useState<Rental | null>(() => {
     return rentals.find((r) => r.id === params.id) ?? null;
@@ -45,6 +51,14 @@ export default function RentalDetailPage({ params }: Props) {
   const [returnDate, setReturnDate] = useState(MOCK_TODAY_DATE);
 
   const [successMsg, setSuccessMsg] = useState("");
+
+  // Re-sync when the route param changes (component instance is reused across /rentals/:id)
+  useEffect(() => {
+    setRental(rentals.find((r) => r.id === params.id) ?? null);
+  }, [params.id]);
+
+  // Auto-clear the success banner, cleaned up on unmount
+  useTimeout(() => setSuccessMsg(""), successMsg ? 2500 : null);
 
   if (!rental) {
     return (
@@ -71,8 +85,8 @@ export default function RentalDetailPage({ params }: Props) {
 
   const primaryVehicle = vehicleList[0];
 
-  const paid = rental.payments.reduce((s, p) => s + p.amount, 0);
-  const remaining = Math.max(0, rental.totalAmount - paid);
+  const paid = getTotalPaid(rental);
+  const remaining = getRemaining(rental);
   const paidPercent = Math.min(
     100,
     rental.totalAmount > 0 ? Math.round((paid / rental.totalAmount) * 100) : 0
@@ -110,7 +124,6 @@ export default function RentalDetailPage({ params }: Props) {
     setPaymentError("");
     setShowPaymentInput(false);
     setSuccessMsg("تم تسجيل الدفعة");
-    setTimeout(() => setSuccessMsg(""), 2500);
   }
 
   function handleReturn() {
@@ -128,7 +141,6 @@ export default function RentalDetailPage({ params }: Props) {
     });
     setShowReturnConfirm(false);
     setSuccessMsg("تم إعادة السيارة بنجاح");
-    setTimeout(() => setSuccessMsg(""), 2500);
   }
 
   return (
@@ -443,7 +455,6 @@ export default function RentalDetailPage({ params }: Props) {
         <button
           onClick={() => {
             setSuccessMsg("سيتم توفير تعديل العقد في إصدار لاحق.");
-            setTimeout(() => setSuccessMsg(""), 2500);
           }}
           className="w-full flex items-center justify-center gap-2 border border-border text-foreground rounded-2xl py-4 text-base font-bold active:scale-[0.98] transition-transform"
         >
