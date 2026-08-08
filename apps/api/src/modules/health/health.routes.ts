@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
-import healthRouter from "../modules/health/health.routes";
+import { healthCheck } from "./health.controller";
 
 const router: IRouter = Router();
 
-router.use(healthRouter);
+router.get("/healthz", healthCheck);
 
 export default router;
